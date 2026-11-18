@@ -18,8 +18,9 @@
         "name": "next"
       }
     ],
-    "paths": {
-      "@/*": ["./*"]
+        "paths": {
+      "@/*": ["./*"],
+      "cn": ["./lib/utils.ts"]
     }
   },
   "include": [

@@ -1,0 +1,347 @@
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { AnimatePresence, motion, type Transition } from "framer-motion";
+import {
+  ArrowRight,
+  ChevronDown,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  X,
+} from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+const spring: Transition = {
+  type: "spring",
+  mass: 0.5,
+  damping: 12,
+  stiffness: 110,
+};
+
+const CATEGORIES = [
+  "Construction Equipment",
+  "Photography Equipment",
+  "Vehicles & Transportation",
+  "Agriculture Equipment",
+  "Electronics",
+  "Event Equipment",
+].map((name) => ({
+  name,
+  href: `/equipment?category=${encodeURIComponent(name)}`,
+}));
+
+type AuthUser = { name: string; photo?: string };
+
+// TODO: replace with the real BetterAuth session once auth is wired up
+function useAuthUser(): AuthUser | null {
+  return null;
+}
+
+function Brand() {
+  return (
+    <Link href="/" className="flex items-center gap-3">
+      <Image
+        src="/logo.png"
+        alt="Apex Rentals logo"
+        width={36}
+        height={36}
+        priority
+        className="size-9 rounded-[0.65rem] ring-1 ring-white/15 shadow-lg shadow-black/40"
+      />
+      <span className="font-heading text-lg font-semibold tracking-tight text-foreground">
+        Apex Rentals
+      </span>
+    </Link>
+  );
+}
+
+// The frosted pill that slides between links on hover.
+// Every pill shares the same layoutId, so Framer Motion
+// animates it from one link to the next.
+function HoverPill() {
+  return (
+    <motion.span
+      layoutId="nav-hover-pill"
+      className="absolute inset-0 rounded-full bg-white/10 ring-1 ring-white/15"
+      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+    />
+  );
+}
+
+function navItemClass(active: boolean) {
+  return cn(
+    "relative block rounded-full px-4 py-2 text-sm font-medium transition active:scale-95",
+    active
+      ? "text-foreground"
+      : "text-muted-foreground hover:text-foreground"
+  );
+}
+
+type NavLinkProps = {
+  href: string;
+  label: string;
+  active: boolean;
+  hovered: string | null;
+  onHover: (name: string | null) => void;
+};
+
+function NavLink({ href, label, active, hovered, onHover }: NavLinkProps) {
+  return (
+    <div className="relative" onMouseEnter={() => onHover(label)}>
+      {hovered === label && <HoverPill />}
+      <Link href={href} className={navItemClass(active)}>
+        {label}
+      </Link>
+    </div>
+  );
+}
+
+export function Navbar() {
+  const pathname = usePathname();
+  const user = useAuthUser();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [hovered, setHovered] = useState<string | null>(null);
+
+  const closeMobile = () => setMobileOpen(false);
+
+  return (
+    <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
+      <nav className="glass-strong w-full max-w-6xl rounded-2xl">
+        <div className="flex items-center justify-between px-4 py-2.5 sm:px-6">
+          <Brand />
+
+          {/* Desktop links */}
+          <div
+            className="hidden items-center gap-1 md:flex"
+            onMouseLeave={() => setHovered(null)}
+          >
+            <NavLink
+              href="/"
+              label="Home"
+              active={pathname === "/"}
+              hovered={hovered}
+              onHover={setHovered}
+            />
+            <NavLink
+              href="/equipment"
+              label="All Equipment"
+              active={pathname.startsWith("/equipment")}
+              hovered={hovered}
+              onHover={setHovered}
+            />
+
+            {/* Categories hover menu */}
+            <div
+              className="relative"
+              onMouseEnter={() => {
+                setHovered("Categories");
+                setCategoriesOpen(true);
+              }}
+              onMouseLeave={() => setCategoriesOpen(false)}
+            >
+              {hovered === "Categories" && <HoverPill />}
+              <button
+                type="button"
+                aria-expanded={categoriesOpen}
+                onClick={() => setCategoriesOpen((v) => !v)}
+                className={cn(navItemClass(false), "flex items-center gap-1")}
+              >
+                Categories
+                <ChevronDown
+                  className={cn(
+                    "size-3.5 transition-transform",
+                    categoriesOpen && "rotate-180"
+                  )}
+                />
+              </button>
+
+              <AnimatePresence>
+                {categoriesOpen && (
+                  <div className="absolute left-1/2 top-full -translate-x-1/2 pt-7">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.92, y: 8 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 6 }}
+                      transition={spring}
+                      className="glass-strong w-[26rem] rounded-2xl p-4"
+                    >
+                      <p className="mb-3 px-2 text-xs font-medium uppercase tracking-widest text-primary">
+                        Browse by category
+                      </p>
+                      <div className="grid grid-cols-2 gap-1">
+                        {CATEGORIES.map((c) => (
+                          <Link
+                            key={c.name}
+                            href={c.href}
+                            onClick={() => setCategoriesOpen(false)}
+                            className="rounded-lg px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+                          >
+                            {c.name}
+                          </Link>
+                        ))}
+                      </div>
+                      <Link
+                        href="/equipment"
+                        onClick={() => setCategoriesOpen(false)}
+                        className="glass-accent mt-3 flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-foreground"
+                      >
+                        View all equipment
+                        <ArrowRight className="size-4 text-primary" />
+                      </Link>
+                    </motion.div>
+                  </div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <NavLink
+              href="/#how-it-works"
+              label="How It Works"
+              active={false}
+              hovered={hovered}
+              onHover={setHovered}
+            />
+            <NavLink
+              href="/#contact"
+              label="Contact Us"
+              active={false}
+              hovered={hovered}
+              onHover={setHovered}
+            />
+          </div>
+
+          {/* Desktop actions */}
+          <div className="hidden items-center gap-2 md:flex">
+            {user ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className={buttonVariants({ variant: "ghost", size: "sm" })}
+                >
+                  <LayoutDashboard className="size-4" />
+                  Dashboard
+                </Link>
+                <button
+                  type="button"
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                  onClick={() => {
+                    /* TODO: BetterAuth signOut */
+                  }}
+                >
+                  <LogOut className="size-4" />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className={buttonVariants({ variant: "ghost", size: "sm" })}
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/register"
+                  className={buttonVariants({ variant: "default", size: "sm" })}
+                >
+                  Register
+                </Link>
+              </>
+            )}
+          </div>
+
+          {/* Mobile toggle */}
+          <button
+            type="button"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen((v) => !v)}
+            className="flex size-10 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-white/10 md:hidden"
+          >
+            {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
+        </div>
+
+        {/* Mobile panel */}
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.22 }}
+              className="overflow-hidden md:hidden"
+            >
+              <div className="flex max-h-[70vh] flex-col gap-1 overflow-y-auto border-t border-white/10 px-4 py-4 sm:px-6">
+                <Link href="/" onClick={closeMobile} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10">
+                  Home
+                </Link>
+                <Link href="/equipment" onClick={closeMobile} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10">
+                  All Equipment
+                </Link>
+
+                <p className="mt-2 px-3 text-xs font-medium uppercase tracking-widest text-primary">
+                  Categories
+                </p>
+                {CATEGORIES.map((c) => (
+                  <Link
+                    key={c.name}
+                    href={c.href}
+                    onClick={closeMobile}
+                    className="rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-white/10 hover:text-foreground"
+                  >
+                    {c.name}
+                  </Link>
+                ))}
+
+                <Link href="/#how-it-works" onClick={closeMobile} className="mt-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10">
+                  How It Works
+                </Link>
+                <Link href="/#contact" onClick={closeMobile} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10">
+                  Contact Us
+                </Link>
+
+                <div className="mt-3 flex flex-col gap-2 border-t border-white/10 pt-4">
+                  {user ? (
+                    <>
+                      <Link href="/dashboard" onClick={closeMobile} className={buttonVariants({ variant: "ghost" })}>
+                        <LayoutDashboard className="size-4" />
+                        Dashboard
+                      </Link>
+                      <button
+                        type="button"
+                        className={buttonVariants({ variant: "outline" })}
+                        onClick={() => {
+                          /* TODO: BetterAuth signOut */
+                          closeMobile();
+                        }}
+                      >
+                        <LogOut className="size-4" />
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/login" onClick={closeMobile} className={buttonVariants({ variant: "outline" })}>
+                        Login
+                      </Link>
+                      <Link href="/register" onClick={closeMobile} className={buttonVariants({ variant: "default" })}>
+                        Register
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
+    </div>
+  );
+}

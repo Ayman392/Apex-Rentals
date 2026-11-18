@@ -1,30 +1,37 @@
-import { Geist, Geist_Mono } from "next/font/google"
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
+import "./globals.css";
+import { Navbar } from "@/components/Navbar/page";
 
-import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'})
-
-const fontMono = Geist_Mono({
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  variable: "--font-mono",
-})
+});
+
+export const metadata: Metadata = {
+  title: {
+    default: "Apex Rentals | Rent Professional Equipment",
+    template: "%s | Apex Rentals",
+  },
+  description:
+    "Rent construction, photography, agriculture, event and more equipment from verified owners. Flexible periods, secure payments.",
+};
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={cn("antialiased", fontMono.variable, "font-sans", geist.variable)}
-    >
-      <body>
-        <ThemeProvider>{children}</ThemeProvider>
+    <html lang="en" className={`${inter.variable} dark`}>
+      <body className="min-h-screen font-sans antialiased">
+        <TooltipProvider>
+  <Navbar />
+  {children}
+</TooltipProvider>
+        <Toaster theme="dark" position="top-right" richColors />
       </body>
     </html>
-  )
+  );
 }
