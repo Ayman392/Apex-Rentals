@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider, themeInitScript } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { SmoothScroll } from "@/components/smooth-scroll";
@@ -37,7 +37,10 @@ export default function RootLayout({
       className={`${inter.variable} ${poppins.variable} dark`}
       suppressHydrationWarning
     >
-      <body className="min-h-screen font-sans antialiased">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      <body className="min-h-screen bg-background text-foreground font-sans antialiased">
         <SmoothScroll />
         <ThemeProvider>
           <TooltipProvider>

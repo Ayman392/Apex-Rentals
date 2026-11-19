@@ -181,7 +181,7 @@ export function Categories({
 
   return (
     <section className="relative w-full overflow-hidden">
-      <div className="mx-auto w-full max-w-6xl px-6 py-24 sm:px-10">
+      <div className="mx-auto w-full max-w-6xl px-6 py-10 sm:px-10">
         {/* Header: same style as the Featured section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
