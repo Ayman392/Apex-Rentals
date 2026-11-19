@@ -3,6 +3,7 @@ import { Inter, Poppins } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
+import { SmoothScroll } from "@/components/smooth-scroll";
 import "./globals.css";
 import { Navbar } from "@/components/Home/Navbar/page";
 import { Footer } from "@/components/Home/Footer/page";
@@ -37,6 +38,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-screen font-sans antialiased">
+        <SmoothScroll />
         <ThemeProvider>
           <TooltipProvider>
             <Navbar />
