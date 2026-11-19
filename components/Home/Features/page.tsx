@@ -1,37 +1,40 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import type { Equipment } from "@/lib/equipment";
 
 const UNIT = { Daily: "day", Weekly: "week", Monthly: "month" } as const;
 
-/* ---------- Palette (sampled from the hero) ---------- */
+/* ---------- Palette ---------- */
 
-// Card tints, matching the hero's category cards.
+// `wash` is the colour that rises from the bottom of each photo.
 const TINTS = {
-  navy: { from: "#1c2640", to: "#0b1120" },
-  brown: { from: "#432815", to: "#150b06" },
-  plum: { from: "#3d1633", to: "#14070f" },
-  teal: { from: "#0f3d42", to: "#061618" },
-  green: { from: "#12392a", to: "#07150e" },
+  navy: { wash: "#33407a" },
+  brown: { wash: "#7a4a22" },
+  plum: { wash: "#7a2f66" },
+  teal: { wash: "#1f6b73" },
+  green: { wash: "#2d6b4a" },
 };
 
 function tintFor(category: string) {
   const c = category.toLowerCase();
-  if (c.includes("construction") || c.includes("event gear")) return TINTS.brown;
+  if (c.includes("construction")) return TINTS.brown;
   if (c.includes("agri")) return TINTS.green;
   if (c.includes("event") || c.includes("sound")) return TINTS.plum;
-  if (c.includes("drone")) return TINTS.teal;
-  return TINTS.navy; // photography, vehicles, electronics, default
+  if (c.includes("electronic") || c.includes("drone")) return TINTS.teal;
+  return TINTS.navy; // photography, vehicles, default
 }
 
-/* ---------- Demo images ---------- */
+/* ---------- Images ---------- */
 
-// Set to false once your real equipment images are working.
-const USE_DEMO_IMAGES = true;
+// Real photos come from item.image (Unsplash). The demo image is only a
+// fallback for items that have no image yet. Set USE_DEMO_IMAGES to true
+// to force the demo images for every card.
+const USE_DEMO_IMAGES = false;
 const DEMO_IMAGE_COUNT = 8; // public/demo/1.jpg ... 8.jpg
 
 function imageFor(item: Equipment, index: number) {
@@ -70,6 +73,11 @@ function GlassCard({
 }) {
   const wide = index < 2;
   const tint = tintFor(item.category);
+  // If the photo fails to load, fall back to a demo image instead of a broken icon
+  const [failed, setFailed] = useState(false);
+  const src = failed
+    ? `/demo/${(index % DEMO_IMAGE_COUNT) + 1}.jpg`
+    : imageFor(item, index);
 
   const span = wide
     ? "lg:col-span-6"
@@ -77,88 +85,73 @@ function GlassCard({
       ? "lg:col-span-4"
       : "lg:col-span-3";
 
-  const corners = [
-    index === 0 && "lg:rounded-tl-[2rem]",
-    index === 1 && "lg:rounded-tr-[2rem]",
-    index === 2 && "lg:rounded-bl-[2rem]",
-    index === total - 1 && "lg:rounded-br-[2rem]",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
   return (
-    <motion.div variants={entrance} className={span}>
+    <motion.div variants={entrance} className={`relative hover:z-20 ${span}`}>
       <motion.article
-          initial="idle"
-          whileHover="active"
-          variants={{ idle: {}, active: {} }}
-          style={{
-            backgroundImage: `linear-gradient(160deg, ${tint.from}, ${tint.to})`,
-          }}
-          className={`group relative isolate overflow-hidden rounded-2xl ring-1 ring-white/10 shadow-[0_20px_50px_-20px_rgb(0_0_0/0.7)] transition-shadow duration-500 hover:shadow-[0_28px_60px_-18px_rgb(0_0_0/0.85)] lg:rounded-md ${corners} ${
-            wide ? "h-[22rem] lg:h-[24rem]" : "h-[22rem] lg:h-[17rem]"
-          }`}
+        initial="idle"
+        whileHover="active"
+        variants={{ idle: { scale: 1 }, active: { scale: 1.04 } }}
+        transition={{ type: "spring", stiffness: 260, damping: 24 }}
+        className={`group relative isolate overflow-hidden rounded-3xl bg-neutral-900 ring-1 ring-white/10 shadow-[0_20px_50px_-20px_rgb(0_0_0/0.7)] transition-shadow duration-500 hover:shadow-[0_28px_60px_-18px_rgb(0_0_0/0.85)] ${
+          wide ? "h-[22rem] lg:h-[24rem]" : "h-[22rem] lg:h-[17rem]"
+        }`}
+      >
+        {/* Photo fills the card */}
+        <motion.div
+          className="absolute inset-0"
+          variants={{ idle: { scale: 1 }, active: { scale: 1.03 } }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
         >
-          {/* Photo fills the card */}
-          <motion.div
-            className="absolute inset-0"
-            variants={{ idle: { scale: 1 }, active: { scale: 1.05 } }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
+          <Image
+            src={src}
+            alt={item.name}
+            onError={() => setFailed(true)}
+            fill
+            sizes={
+              wide
+                ? "(min-width: 1024px) 540px, (min-width: 640px) 50vw, 100vw"
+                : "(min-width: 1024px) 270px, (min-width: 640px) 50vw, 100vw"
+            }
+            className="object-cover"
+          />
+        </motion.div>
+
+        {/* Coloured wash rising from the bottom */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage: `linear-gradient(to top, ${tint.wash}f2 0%, ${tint.wash}cc 32%, ${tint.wash}40 58%, transparent 80%)`,
+          }}
+        />
+
+        {/* Category chip */}
+        <span className="absolute left-4 top-4 z-10 max-w-[75%] truncate rounded-full border border-white/25 bg-black/25 px-3 py-1 text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-white/90 backdrop-blur-md">
+          {item.category}
+        </span>
+
+        {/* Text and glass button */}
+        <div className="absolute inset-x-0 bottom-0 z-10 p-4 sm:p-5">
+          <h3
+            className={`truncate font-heading font-semibold tracking-tight text-white ${
+              wide ? "text-2xl" : "text-xl"
+            }`}
           >
-            <Image
-              src={imageFor(item, index)}
-              alt={item.name}
-              fill
-              sizes={
-                wide
-                  ? "(min-width: 1024px) 540px, (min-width: 640px) 50vw, 100vw"
-                  : "(min-width: 1024px) 270px, (min-width: 640px) 50vw, 100vw"
-              }
-              className="object-cover"
-            />
-          </motion.div>
+            {item.name}
+          </h3>
+          <p className="mt-1 truncate text-sm text-white/75">
+            ${item.price} / {UNIT[item.rentalType]} · {item.location}
+          </p>
 
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/[0.07] to-transparent" />
-
-          {/* Frosted glass panel, tinted with the card's color */}
-          <div
-            style={{
-              backgroundImage: `linear-gradient(to bottom, rgb(255 255 255 / 0.10), ${tint.to}cc)`,
-            }}
-            className="absolute inset-x-0 bottom-0 z-10 border-t border-white/20 p-5 shadow-[inset_0_1px_0_rgb(255_255_255/0.22)] backdrop-blur-2xl backdrop-saturate-150 sm:p-6"
+          <Link
+            href={`/equipment/${item._id}`}
+            className="mt-3 flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-semibold text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.2)] backdrop-blur-md transition-colors duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground"
           >
-            <p className="truncate text-[0.625rem] font-semibold uppercase tracking-[0.18em] text-white/70">
-              {item.category}
-            </p>
-            <h3
-              className={`mt-1.5 truncate font-heading font-medium tracking-tight text-white ${
-                wide ? "text-xl" : "text-base"
-              }`}
-            >
-              {item.name}
-            </h3>
-
-            <div className="mt-3 flex items-center justify-between gap-3">
-              <p className="flex min-w-0 gap-1 text-xs text-white/80">
-                <span className="shrink-0">
-                  ${item.price} / {UNIT[item.rentalType]}
-                </span>
-                <span className="truncate text-white/55">
-                  · {item.location}
-                </span>
-              </p>
-
-              {/* Glass button, turns orange on hover */}
-              <Link
-                href={`/equipment/${item._id}`}
-                className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-4 text-xs font-medium text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.25)] backdrop-blur-md transition hover:border-primary hover:bg-primary hover:text-primary-foreground"
-              >
-                View Details
-                <ArrowUpRight className="size-3.5" />
-              </Link>
-            </div>
-          </div>
-        </motion.article>
+            View Details
+            <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+          </Link>
+        </div>
+      </motion.article>
     </motion.div>
   );
 }
@@ -195,7 +188,7 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-80px" }}
-          className="mt-10 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-12"
+          className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-12"
         >
           {list.map((equipment, i) => (
             <GlassCard
