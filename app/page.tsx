@@ -3,6 +3,7 @@ import { Hero } from "@/components/Home/Hero/page";
 import { Categories } from "@/components/Home/Categories/page";
 import { Features } from "@/components/Home/Features/page";
 import { WhyChooseUs } from "@/components/Home/WhyChooseUs/page";
+import CustomerReview from "@/components/Home/CutomerReview/page";
 
 export default async function Home() {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/equipment/featured`, {
@@ -16,6 +17,7 @@ export default async function Home() {
       <Features items={items} />
       <Categories />
       <WhyChooseUs/>
+      <CustomerReview/>
     </>
   );
 }
