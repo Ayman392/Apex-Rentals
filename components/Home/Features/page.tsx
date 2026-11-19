@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import type { Equipment } from "@/lib/equipment";
+import { SectionTitle } from "@/components/ui/section-title";
 
 const UNIT = { Daily: "day", Weekly: "week", Monthly: "month" } as const;
 
@@ -145,7 +146,7 @@ function GlassCard({
 
           <Link
             href={`/equipment/${item._id}`}
-            className="mt-3 flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-semibold text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.2)] backdrop-blur-md transition-colors duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground"
+            className="mt-3 flex items-center justify-between rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-[0_8px_20px_-8px_rgb(255_107_26/0.6)] transition-colors duration-300 hover:bg-primary/90"
           >
             View Details
             <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
@@ -172,9 +173,7 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
           transition={{ duration: 0.5 }}
           className="flex flex-col gap-6 border-b border-white/15 pb-8 md:flex-row md:items-end md:justify-between"
         >
-          <h2 className="font-heading text-6xl font-semibold tracking-tighter text-foreground sm:text-8xl">
-            Featured
-          </h2>
+          <SectionTitle text="Featured" />
           <p className="max-w-xs text-lg font-medium leading-snug tracking-tight md:text-right">
             <span className="text-foreground">Equipment ready to rent</span>{" "}
             <span className="text-muted-foreground">
@@ -210,7 +209,7 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
         >
           <Link
             href="/equipment"
-            className="group inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground shadow-[0_10px_30px_-10px_rgb(255_107_26/0.55)] transition duration-300 hover:bg-foreground hover:text-background hover:shadow-[0_10px_30px_-10px_rgb(0_0_0/0.6)]"
+            className="group inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground shadow-[0_10px_30px_-10px_rgb(255_107_26/0.55)] transition duration-300 hover:bg-primary/90"
           >
             View all equipment
             <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

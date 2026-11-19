@@ -1,6 +1,7 @@
 import { Hero } from "@/components/Home/Hero/page";
 import { Features } from "@/components/Home/Features/page";
 import { getFeaturedEquipment } from "@/lib/equipment";
+import { Categories } from "@/components/Home/Categories/page";
 
 export default async function Home() {
   const featured = await getFeaturedEquipment();
@@ -9,6 +10,7 @@ export default async function Home() {
     <>
       <Hero />
       <Features items={featured} />
+      <Categories/>
     </>
   );
 }
