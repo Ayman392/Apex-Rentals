@@ -44,7 +44,7 @@ function FacebookIcon() {
 }
 
 const socialButton =
-  "flex size-10 items-center justify-center rounded-full border border-white/15 text-muted-foreground transition hover:-translate-y-0.5 hover:border-primary/60 hover:text-primary";
+  "flex size-10 items-center justify-center rounded-full border border-border text-muted-foreground transition hover:-translate-y-0.5 hover:border-primary/60 hover:text-coral-text";
 
 type FooterLink = { label: string; href: string };
 
@@ -86,7 +86,7 @@ export function Footer() {
                 alt="Apex Rentals logo"
                 width={36}
                 height={36}
-                className="size-9 rounded-[0.65rem] ring-1 ring-white/15"
+                className="size-9 rounded-[0.65rem] ring-1 ring-border"
               />
               <span className="font-heading text-lg font-semibold tracking-tight text-foreground">
                 Apex Rentals
@@ -137,7 +137,7 @@ export function Footer() {
 <div aria-hidden="true" className="mt-10 select-none px-4 sm:px-10">
   <svg
     viewBox="0 0 1000 75"
-    className="block h-auto w-full"
+    className="block h-auto w-full text-foreground"
     preserveAspectRatio="xMidYMid meet"
   >
     <defs>
@@ -166,7 +166,8 @@ export function Footer() {
         fontSize="112"
         fontWeight="600"
         fill="none"
-        stroke="rgba(244,241,234,0.35)"
+        stroke="currentColor"
+        strokeOpacity={0.35}
         strokeWidth="0.8"
         style={{ fontFamily: "var(--font-display), sans-serif" }}
       >
@@ -177,21 +178,21 @@ export function Footer() {
 </div>
 
         {/* Bottom bar */}
-        <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 px-6 py-5 text-xs text-muted-foreground sm:flex-row sm:px-10">
+        <div className="flex flex-col items-center justify-between gap-3 border-t border-border px-6 py-5 text-xs text-muted-foreground sm:flex-row sm:px-10">
           <p>© {year} Apex Rentals. All rights reserved.</p>
           <div className="flex items-center gap-5">
             <a
               href="mailto:support@apexrentals.com"
               className="flex items-center gap-1.5 transition-colors hover:text-foreground"
             >
-              <Mail className="size-3.5 text-primary" />
+              <Mail className="size-3.5 text-coral-text" />
               support@apexrentals.com
             </a>
             <a
               href="tel:+88018555588855"
               className="flex items-center gap-1.5 transition-colors hover:text-foreground"
             >
-              <Phone className="size-3.5 text-primary" />
+              <Phone className="size-3.5 text-coral-text" />
               +(880) 18555-88855
             </a>
           </div>

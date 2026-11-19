@@ -143,7 +143,7 @@ export function Hero() {
               ref={(el) => {
                 cardRefs.current[i] = el;
               }}
-              className="absolute left-[65%] top-1/2 overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10 will-change-transform"
+              className="absolute left-[65%] top-1/2 overflow-hidden rounded-2xl shadow-2xl ring-1 ring-border will-change-transform"
               style={{
                 width: card.w,
                 height: card.h,
@@ -168,9 +168,9 @@ export function Hero() {
       {/* Content */}
       <div className="mx-auto w-full max-w-6xl px-6 sm:px-10">
         <div className="max-w-xl">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur">
-            <ShieldCheck className="size-3.5 text-primary" />
-            Verified owners · Secure payments
+          <span className="glass-chip inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground">
+            <ShieldCheck className="size-3.5 text-coral-text" />
+            Verified owners, secure payments
           </span>
 
           <h1
@@ -179,7 +179,7 @@ export function Hero() {
           >
             Everything you need,
             <br />
-            <span className="text-primary">without owning it.</span>
+            <span className="text-coral-text">without owning it.</span>
           </h1>
 
           <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground">
@@ -190,14 +190,14 @@ export function Hero() {
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
               href="/equipment"
-              className="inline-flex h-11 items-center gap-2 rounded-full bg-foreground px-6 text-sm font-medium text-background transition hover:opacity-90"
+              className="shadow-coral inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
             >
               Browse equipment
               <ArrowRight className="size-4" />
             </Link>
             <Link
               href="/#how-it-works"
-              className="inline-flex h-11 items-center rounded-full border border-white/15 px-6 text-sm font-medium text-foreground transition hover:bg-white/5"
+              className="glass-chip inline-flex h-11 items-center rounded-full px-6 text-sm font-medium text-foreground transition hover:bg-foreground/5"
             >
               How it works
             </Link>

@@ -46,7 +46,7 @@ const CATEGORIES: Category[] = [
     name: "Photography Equipment",
     tagline: "Cameras, drones, lighting",
     icon: Camera,
-    wash: "#33407a",
+    wash: "#2a3a73",
   },
   {
     name: "Vehicles & Transportation",
@@ -117,7 +117,7 @@ function Tile({ category, image }: { category: Category; image?: string }) {
       layout
       transition={snappySpring}
       style={{
-        backgroundImage: `linear-gradient(155deg, ${category.wash}, #0b0f1a 85%)`,
+        backgroundImage: `linear-gradient(155deg, ${category.wash}, #141b2d 85%)`,
       }}
       className="grid h-full w-full place-items-center"
     >
@@ -188,7 +188,7 @@ export function Categories({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col gap-6 border-b border-white/15 pb-8 md:flex-row md:items-end md:justify-between"
+          className="flex flex-col gap-6 border-b border-border pb-8 md:flex-row md:items-end md:justify-between"
         >
           <SectionTitle text="Categories" />
           <p className="max-w-xs text-lg font-medium leading-snug tracking-tight md:text-right">
@@ -207,7 +207,7 @@ export function Categories({
           transition={{ duration: 0.5, delay: 0.1 }}
           role="group"
           aria-label="Change category layout"
-          className="mt-8 flex w-fit rounded-full border border-border bg-muted p-1"
+          className="glass-chip mt-8 flex w-fit rounded-full p-1"
         >
           {VIEWS.map((v) => (
             <Tab
@@ -315,7 +315,7 @@ export function Categories({
                           <Link
                             href={href}
                             aria-label={`Browse ${category.name}`}
-                            className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_8px_20px_-8px_rgb(255_107_26/0.6)] transition-colors duration-300 hover:bg-primary/90"
+                            className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_8px_20px_-8px_rgb(255_90_78/0.6)] transition-colors duration-300 hover:bg-primary/90"
                           >
                             <ArrowUpRight className="size-4" />
                           </Link>
@@ -344,7 +344,7 @@ export function Categories({
                 >
                   <Link
                     href="/equipment"
-                    className="group inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground shadow-[0_10px_30px_-10px_rgb(255_107_26/0.55)] transition duration-300 hover:bg-primary/90"
+                    className="group inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground shadow-[0_10px_30px_-10px_rgb(255_90_78/0.55)] transition duration-300 hover:bg-primary/90"
                   >
                     Browse all equipment
                     <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />

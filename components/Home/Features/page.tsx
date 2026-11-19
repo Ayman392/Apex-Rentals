@@ -14,7 +14,7 @@ const UNIT = { Daily: "day", Weekly: "week", Monthly: "month" } as const;
 
 // `wash` is the colour that rises from the bottom of each photo.
 const TINTS = {
-  navy: { wash: "#33407a" },
+  navy: { wash: "#1f2c57" },
   brown: { wash: "#7a4a22" },
   plum: { wash: "#7a2f66" },
   teal: { wash: "#1f6b73" },
@@ -93,7 +93,7 @@ function GlassCard({
         whileHover="active"
         variants={{ idle: { scale: 1 }, active: { scale: 1.04 } }}
         transition={{ type: "spring", stiffness: 260, damping: 24 }}
-        className={`group relative isolate overflow-hidden rounded-3xl bg-neutral-900 ring-1 ring-white/10 shadow-[0_20px_50px_-20px_rgb(0_0_0/0.7)] transition-shadow duration-500 hover:shadow-[0_28px_60px_-18px_rgb(0_0_0/0.85)] ${
+        className={`group relative isolate overflow-hidden rounded-3xl bg-card ring-1 ring-border shadow-[0_20px_50px_-20px_rgb(20_27_45/0.55)] transition-shadow duration-500 hover:shadow-[0_28px_60px_-18px_rgb(20_27_45/0.7)] ${
           wide ? "h-[22rem] lg:h-[24rem]" : "h-[22rem] lg:h-[17rem]"
         }`}
       >
@@ -127,7 +127,7 @@ function GlassCard({
         />
 
         {/* Category chip */}
-        <span className="absolute left-4 top-4 z-10 max-w-[75%] truncate rounded-full border border-white/25 bg-black/25 px-3 py-1 text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-white/90 backdrop-blur-md">
+        <span className="glass-on-photo absolute left-4 top-4 z-10 max-w-[75%] truncate rounded-full px-3 py-1 text-xs font-medium">
           {item.category}
         </span>
 
@@ -146,7 +146,7 @@ function GlassCard({
 
           <Link
             href={`/equipment/${item._id}`}
-            className="mt-3 flex items-center justify-between rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-[0_8px_20px_-8px_rgb(255_107_26/0.6)] transition-colors duration-300 hover:bg-primary/90"
+            className="mt-3 flex items-center justify-between rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-[0_8px_20px_-8px_rgb(255_90_78/0.6)] transition-colors duration-300 hover:bg-primary/90"
           >
             View Details
             <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
@@ -171,7 +171,7 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col gap-6 border-b border-white/15 pb-8 md:flex-row md:items-end md:justify-between"
+          className="flex flex-col gap-6 border-b border-border pb-8 md:flex-row md:items-end md:justify-between"
         >
           <SectionTitle text="Featured" />
           <p className="max-w-xs text-lg font-medium leading-snug tracking-tight md:text-right">
@@ -209,7 +209,7 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
         >
           <Link
             href="/equipment"
-            className="group inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground shadow-[0_10px_30px_-10px_rgb(255_107_26/0.55)] transition duration-300 hover:bg-primary/90"
+            className="group inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground shadow-[0_10px_30px_-10px_rgb(255_90_78/0.55)] transition duration-300 hover:bg-primary/90"
           >
             View all equipment
             <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

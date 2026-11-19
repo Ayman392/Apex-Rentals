@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 // One shared title for every section, so the style stays identical everywhere.
 export function SectionTitle({
-
+  text,
   className,
 }: {
   text: string;
@@ -14,12 +14,12 @@ export function SectionTitle({
   return (
     <h2
       className={cn(
-        "font-heading text-5xl font-semibold tracking-tighter",
+        "font-heading text-6xl font-semibold tracking-tighter",
         className,
       )}
     >
       <ShinyText
-  text="Shiny Text Effect"
+  text= {text}
   color="#b5b5b5"
   shineColor="#ffffff"
   speed={4}

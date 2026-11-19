@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
+import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { Navbar } from "@/components/Home/Navbar/page";
 import { Footer } from "@/components/Home/Footer/page";
-
 
 const inter = Inter({
   variable: "--font-inter",
@@ -31,14 +31,20 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-   <html lang="en" className={`${inter.variable} ${poppins.variable} dark`}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${poppins.variable} dark`}
+      suppressHydrationWarning
+    >
       <body className="min-h-screen font-sans antialiased">
-        <TooltipProvider>
-  <Navbar />
-  {children}
-  <Footer/>
-</TooltipProvider>
-        <Toaster theme="dark" position="top-right" richColors />
+        <ThemeProvider>
+          <TooltipProvider>
+            <Navbar />
+            {children}
+            <Footer />
+          </TooltipProvider>
+          <Toaster position="top-right" richColors />
+        </ThemeProvider>
       </body>
     </html>
   );

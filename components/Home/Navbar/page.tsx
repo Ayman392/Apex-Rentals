@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const spring: Transition = {
   type: "spring",
@@ -51,7 +52,7 @@ function Brand() {
         width={36}
         height={36}
         priority
-        className="size-9 rounded-[0.65rem] ring-1 ring-white/15 shadow-lg shadow-black/40"
+        className="size-9 rounded-[0.65rem] ring-1 ring-border shadow-lg shadow-black/20"
       />
       <span className="font-heading text-lg font-semibold tracking-tight text-foreground">
         Apex Rentals
@@ -67,7 +68,7 @@ function HoverPill() {
   return (
     <motion.span
       layoutId="nav-hover-pill"
-      className="absolute inset-0 rounded-full bg-white/10 ring-1 ring-white/15"
+      className="absolute inset-0 rounded-full bg-foreground/10 ring-1 ring-border"
       transition={{ type: "spring", stiffness: 380, damping: 30 }}
     />
   );
@@ -171,7 +172,7 @@ export function Navbar() {
                       transition={spring}
                       className="glass-strong w-[26rem] rounded-2xl p-4"
                     >
-                      <p className="mb-3 px-2 text-xs font-medium uppercase tracking-widest text-primary">
+                      <p className="mb-3 px-2 text-xs font-medium text-coral-text">
                         Browse by category
                       </p>
                       <div className="grid grid-cols-2 gap-1">
@@ -180,7 +181,7 @@ export function Navbar() {
                             key={c.name}
                             href={c.href}
                             onClick={() => setCategoriesOpen(false)}
-                            className="rounded-lg px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+                            className="rounded-lg px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
                           >
                             {c.name}
                           </Link>
@@ -192,7 +193,7 @@ export function Navbar() {
                         className="glass-accent mt-3 flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-foreground"
                       >
                         View all equipment
-                        <ArrowRight className="size-4 text-primary" />
+                        <ArrowRight className="size-4 text-coral-text" />
                       </Link>
                     </motion.div>
                   </div>
@@ -218,6 +219,7 @@ export function Navbar() {
 
           {/* Desktop actions */}
           <div className="hidden items-center gap-2 md:flex">
+            <ThemeToggle />
             {user ? (
               <>
                 <Link
@@ -262,7 +264,7 @@ export function Navbar() {
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen((v) => !v)}
-            className="flex size-10 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-white/10 md:hidden"
+            className="flex size-10 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-foreground/10 md:hidden"
           >
             {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
@@ -278,15 +280,15 @@ export function Navbar() {
               transition={{ duration: 0.22 }}
               className="overflow-hidden md:hidden"
             >
-              <div className="flex max-h-[70vh] flex-col gap-1 overflow-y-auto border-t border-white/10 px-4 py-4 sm:px-6">
-                <Link href="/" onClick={closeMobile} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10">
+              <div className="flex max-h-[70vh] flex-col gap-1 overflow-y-auto border-t border-border px-4 py-4 sm:px-6">
+                <Link href="/" onClick={closeMobile} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-foreground/10">
                   Home
                 </Link>
-                <Link href="/equipment" onClick={closeMobile} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10">
+                <Link href="/equipment" onClick={closeMobile} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-foreground/10">
                   All Equipment
                 </Link>
 
-                <p className="mt-2 px-3 text-xs font-medium uppercase tracking-widest text-primary">
+                <p className="mt-2 px-3 text-xs font-medium text-coral-text">
                   Categories
                 </p>
                 {CATEGORIES.map((c) => (
@@ -294,20 +296,24 @@ export function Navbar() {
                     key={c.name}
                     href={c.href}
                     onClick={closeMobile}
-                    className="rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-white/10 hover:text-foreground"
+                    className="rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-foreground/10 hover:text-foreground"
                   >
                     {c.name}
                   </Link>
                 ))}
 
-                <Link href="/#how-it-works" onClick={closeMobile} className="mt-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10">
+                <Link href="/#how-it-works" onClick={closeMobile} className="mt-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-foreground/10">
                   How It Works
                 </Link>
-                <Link href="/#contact" onClick={closeMobile} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/10">
+                <Link href="/#contact" onClick={closeMobile} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-foreground/10">
                   Contact Us
                 </Link>
 
-                <div className="mt-3 flex flex-col gap-2 border-t border-white/10 pt-4">
+                <div className="mt-3 flex flex-col gap-2 border-t border-border pt-4">
+                  <div className="flex items-center justify-between px-1 pb-1 text-sm text-muted-foreground">
+                    Theme
+                    <ThemeToggle />
+                  </div>
                   {user ? (
                     <>
                       <Link href="/dashboard" onClick={closeMobile} className={buttonVariants({ variant: "ghost" })}>
