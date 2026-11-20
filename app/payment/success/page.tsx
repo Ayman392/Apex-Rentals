@@ -128,10 +128,13 @@ function PaymentSuccessContent() {
         </div>
       )}
 
-      <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
+      <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:items-center">
         <Link
           href="/dashboard/my-rentals"
-          className={cn(buttonVariants(), "shadow-coral h-11 w-full sm:flex-1 rounded-full")}
+          className={cn(
+            buttonVariants(),
+            "shadow-coral h-11 w-full rounded-full sm:flex-1",
+          )}
         >
           View My Rentals
           <ArrowRight className="ml-1.5 size-4" />
@@ -140,7 +143,7 @@ function PaymentSuccessContent() {
           href="/equipment"
           className={cn(
             buttonVariants({ variant: "outline" }),
-            "flex-1 rounded-full",
+            "h-11 w-full rounded-full sm:flex-1",
           )}
         >
           Browse More
