@@ -185,14 +185,13 @@ export default function DashboardLayout({
   }
 
   return (
-    <AnimatedSidebarProvider className="min-h-svh bg-background">
+    <AnimatedSidebarProvider className="h-svh min-h-svh overflow-hidden bg-background pb-4">
       <AnimatedSidebar
         ariaLabel="Apex Rentals workspace"
         collapsible="icon"
         variant="inset"
-        panelClassName="border border-border/70 bg-card/60 backdrop-blur-xl"
+        panelClassName="h-full border border-border/70 bg-card/60 backdrop-blur-xl"
       >
-        {/* Brand header */}
         {/* Brand header */}
         <AnimatedSidebarHeader className="p-3 pb-2 group-data-[state=collapsed]/sidebar:px-0">
           <div className="flex min-h-11 items-center gap-3 overflow-hidden px-1.5 group-data-[state=collapsed]/sidebar:justify-center group-data-[state=collapsed]/sidebar:px-0">
@@ -297,7 +296,7 @@ export default function DashboardLayout({
           </AnimatedSidebarGroup>
         </AnimatedSidebarContent>
 
-        {/* User profile footer */}
+        {/* User profile section in sidebar */}
         <AnimatedSidebarFooter className="gap-2 border-border/70 p-3">
           <button
             type="button"
@@ -327,8 +326,8 @@ export default function DashboardLayout({
         <AnimatedSidebarRail />
       </AnimatedSidebar>
 
-      {/* Main content area */}
-      <AnimatedSidebarInset className="min-h-svh border border-border/70 bg-background">
+      {/* Main content area matched to sidebar height */}
+      <AnimatedSidebarInset className="flex h-full min-h-0 flex-col border border-border/70 bg-background">
         <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between gap-3 border-b border-border/70 bg-background/80 px-4 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <AnimatedSidebarTrigger className="text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
@@ -348,9 +347,12 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-5 sm:p-7">
-          {children}
-        </div>
+        <div
+  data-lenis-prevent
+  className="flex min-h-0 flex-1 flex-col overflow-y-auto scroll-smooth p-5 sm:p-7"
+>
+  {children}
+</div>
       </AnimatedSidebarInset>
     </AnimatedSidebarProvider>
   );

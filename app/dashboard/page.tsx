@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
+import RentalAnalytics from "@/app/dashboard/rental-analysis";
+import { SectionTitle } from "@/components/ui/section-title";
 
 export default function DashboardOverviewPage() {
   const { data: session } = useSession();
@@ -65,34 +67,39 @@ export default function DashboardOverviewPage() {
           ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-foreground">
-          Welcome back, {user?.name?.split(" ")[0] || "there"}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Manage your {role} activity from your Apex Rentals dashboard.
-        </p>
+    <div className="space-y-8">
+      <div className="space-y-6">
+        <div>
+            <SectionTitle className="text-3xl font-semibold" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`}
+            />
+          <p className="mt-1 text-sm text-muted-foreground">
+            Manage your {role} activity from your Apex Rentals dashboard.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {quickLinks.map((card) => (
+            <Link
+              key={card.href}
+              href={card.href}
+              className="group rounded-2xl border border-border bg-muted/30 p-5 transition-all hover:border-primary/40 hover:bg-muted/60"
+            >
+              <h3 className="font-semibold text-foreground">{card.title}</h3>
+              <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                {card.desc}
+              </p>
+              <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-coral-text">
+                Open
+                <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </Link>
+          ))}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {quickLinks.map((card) => (
-          <Link
-            key={card.href}
-            href={card.href}
-            className="group rounded-2xl border border-border bg-muted/30 p-5 transition-all hover:border-primary/40 hover:bg-muted/60"
-          >
-            <h3 className="font-semibold text-foreground">{card.title}</h3>
-            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-              {card.desc}
-            </p>
-            <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-coral-text">
-              Open
-              <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-            </span>
-          </Link>
-        ))}
-      </div>
+      {(role === "admin" || role === "owner") && (
+        <RentalAnalytics role={role} />
+      )}
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { SmoothScroll } from "@/components/smooth-scroll";
 import "./globals.css";
 import { Navbar } from "@/components/Home/Navbar/page";
-import { Footer } from "@/components/Home/Footer/page";
+import { ConditionalFooter } from "@/components/Home/Footer/conditional-footer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -46,7 +46,7 @@ export default function RootLayout({
           <TooltipProvider>
             <Navbar />
             {children}
-            <Footer />
+            <ConditionalFooter />
           </TooltipProvider>
           <Toaster position="top-right" richColors />
         </ThemeProvider>
