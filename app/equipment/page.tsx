@@ -15,6 +15,7 @@ import {
   Check,
 } from "lucide-react";
 import { IOSSpinner } from "@/components/ui/ios-spinner";
+import { SectionTitle } from "@/components/ui/section-title";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -412,9 +413,7 @@ function EquipmentCatalog() {
           <span className="text-xs font-medium uppercase tracking-wider text-coral-text">
             Rentals
           </span>
-          <h1 className="text-balance text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            All Equipment
-          </h1>
+          <SectionTitle text="All Equipment" className="text-5xl"/>
           <p className="text-base leading-relaxed text-muted-foreground">
             Verified tools, cameras, vehicles, and event gear ready to book by
             the day, week, or month.

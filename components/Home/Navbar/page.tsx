@@ -56,9 +56,33 @@ function Brand() {
   );
 }
 
-// The frosted pill that slides between links on hover.
-// Every pill shares the same layoutId, so Framer Motion
-// animates it from one link to the next.
+function UserAvatar({
+  src,
+  name,
+}: {
+  src?: string | null;
+  name?: string | null;
+}) {
+  const [failed, setFailed] = useState(false);
+
+  if (!src || failed) {
+    return <User className="size-4" />;
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={name || "User"}
+      width={32}
+      height={32}
+      unoptimized
+      referrerPolicy="no-referrer"
+      onError={() => setFailed(true)}
+      className="size-full object-cover"
+    />
+  );
+}
+
 function HoverPill() {
   return (
     <motion.span
@@ -74,7 +98,7 @@ function navItemClass(active: boolean) {
     "relative block rounded-full px-4 py-2 text-sm font-medium transition active:scale-95",
     active
       ? "text-foreground"
-      : "text-muted-foreground hover:text-foreground"
+      : "text-muted-foreground hover:text-foreground",
   );
 }
 
@@ -172,7 +196,7 @@ export function Navbar() {
                 <ChevronDown
                   className={cn(
                     "size-3.5 transition-transform",
-                    categoriesOpen && "rotate-180"
+                    categoriesOpen && "rotate-180",
                   )}
                 />
               </button>
@@ -252,18 +276,11 @@ export function Navbar() {
                   title={`${user.name} (${user.role || "Customer"})`}
                   className="flex size-8 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground ring-1 ring-border"
                 >
-                  {user.image ? (
-                    <Image
-                      src={user.image}
-                      alt={user.name || "User"}
-                      width={32}
-                      height={32}
-                      unoptimized
-                      className="size-full object-cover"
-                    />
-                  ) : (
-                    <User className="size-4" />
-                  )}
+                  <UserAvatar
+                    key={user.image}
+                    src={user.image}
+                    name={user.name}
+                  />
                 </Link>
               </>
             ) : (
@@ -292,7 +309,11 @@ export function Navbar() {
             onClick={() => setMobileOpen((v) => !v)}
             className="flex size-10 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-foreground/10 md:hidden"
           >
-            {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            {mobileOpen ? (
+              <X className="size-5" />
+            ) : (
+              <Menu className="size-5" />
+            )}
           </button>
         </div>
 
@@ -307,10 +328,18 @@ export function Navbar() {
               className="overflow-hidden md:hidden"
             >
               <div className="flex max-h-[70vh] flex-col gap-1 overflow-y-auto border-t border-border px-4 py-4 sm:px-6">
-                <Link href="/" onClick={closeMobile} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-foreground/10">
+                <Link
+                  href="/"
+                  onClick={closeMobile}
+                  className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-foreground/10"
+                >
                   Home
                 </Link>
-                <Link href="/equipment" onClick={closeMobile} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-foreground/10">
+                <Link
+                  href="/equipment"
+                  onClick={closeMobile}
+                  className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-foreground/10"
+                >
                   All Equipment
                 </Link>
 
@@ -328,10 +357,18 @@ export function Navbar() {
                   </Link>
                 ))}
 
-                <Link href="/#how-it-works" onClick={closeMobile} className="mt-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-foreground/10">
+                <Link
+                  href="/#how-it-works"
+                  onClick={closeMobile}
+                  className="mt-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-foreground/10"
+                >
                   How It Works
                 </Link>
-                <Link href="/#contact" onClick={closeMobile} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-foreground/10">
+                <Link
+                  href="/#contact"
+                  onClick={closeMobile}
+                  className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-foreground/10"
+                >
                   Contact Us
                 </Link>
 
@@ -346,18 +383,11 @@ export function Navbar() {
                     <>
                       <div className="flex items-center gap-2.5 px-1 pb-1">
                         <div className="flex size-8 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground ring-1 ring-border">
-                          {user.image ? (
-                            <Image
-                              src={user.image}
-                              alt={user.name || "User"}
-                              width={32}
-                              height={32}
-                              unoptimized
-                              className="size-full object-cover"
-                            />
-                          ) : (
-                            <User className="size-4" />
-                          )}
+                          <UserAvatar
+                            key={user.image}
+                            src={user.image}
+                            name={user.name}
+                          />
                         </div>
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium text-foreground">
@@ -368,7 +398,11 @@ export function Navbar() {
                           </p>
                         </div>
                       </div>
-                      <Link href="/dashboard" onClick={closeMobile} className={buttonVariants({ variant: "ghost" })}>
+                      <Link
+                        href="/dashboard"
+                        onClick={closeMobile}
+                        className={buttonVariants({ variant: "ghost" })}
+                      >
                         <LayoutDashboard className="size-4" />
                         Dashboard
                       </Link>
@@ -384,10 +418,18 @@ export function Navbar() {
                     </>
                   ) : (
                     <>
-                      <Link href="/login" onClick={closeMobile} className={buttonVariants({ variant: "outline" })}>
+                      <Link
+                        href="/login"
+                        onClick={closeMobile}
+                        className={buttonVariants({ variant: "outline" })}
+                      >
                         Login
                       </Link>
-                      <Link href="/register" onClick={closeMobile} className={buttonVariants({ variant: "default" })}>
+                      <Link
+                        href="/register"
+                        onClick={closeMobile}
+                        className={buttonVariants({ variant: "default" })}
+                      >
                         Register
                       </Link>
                     </>
