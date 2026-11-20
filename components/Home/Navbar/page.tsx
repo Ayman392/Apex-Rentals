@@ -40,7 +40,10 @@ const CATEGORIES = [
 
 function Brand() {
   return (
-    <Link href="/" className="flex items-center gap-3">
+    <Link
+      href="/"
+      className="flex shrink-0 items-center gap-2.5 whitespace-nowrap"
+    >
       <Image
         src="/logo.png"
         alt="Apex Rentals logo"
@@ -95,7 +98,7 @@ function HoverPill() {
 
 function navItemClass(active: boolean) {
   return cn(
-    "relative block rounded-full px-4 py-2 text-sm font-medium transition active:scale-95",
+    "relative block whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition active:scale-95 xl:px-4",
     active
       ? "text-foreground"
       : "text-muted-foreground hover:text-foreground",
@@ -153,12 +156,12 @@ export function Navbar() {
   return (
     <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
       <nav className="glass-strong w-full max-w-6xl rounded-2xl">
-        <div className="flex items-center justify-between px-4 py-2.5 sm:px-6">
+        <div className="flex items-center justify-between gap-4 px-4 py-2.5 sm:px-6">
           <Brand />
 
           {/* Desktop links */}
           <div
-            className="hidden items-center gap-1 md:flex"
+            className="hidden items-center gap-1 lg:flex"
             onMouseLeave={() => setHovered(null)}
           >
             <NavLink
@@ -249,7 +252,7 @@ export function Navbar() {
           </div>
 
           {/* Desktop actions */}
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="hidden shrink-0 items-center gap-2 lg:flex">
             <ThemeToggle />
             {isPending ? (
               <div className="h-8 w-36 animate-pulse rounded-full bg-muted" />
@@ -274,7 +277,7 @@ export function Navbar() {
                 <Link
                   href="/dashboard/profile"
                   title={`${user.name} (${user.role || "Customer"})`}
-                  className="flex size-8 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground ring-1 ring-border"
+                  className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground ring-1 ring-border"
                 >
                   <UserAvatar
                     key={user.image}
@@ -307,7 +310,7 @@ export function Navbar() {
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen((v) => !v)}
-            className="flex size-10 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-foreground/10 md:hidden"
+            className="flex size-10 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-foreground/10 lg:hidden"
           >
             {mobileOpen ? (
               <X className="size-5" />
@@ -325,7 +328,7 @@ export function Navbar() {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.22 }}
-              className="overflow-hidden md:hidden"
+              className="overflow-hidden lg:hidden"
             >
               <div className="flex max-h-[70vh] flex-col gap-1 overflow-y-auto border-t border-border px-4 py-4 sm:px-6">
                 <Link
@@ -382,7 +385,7 @@ export function Navbar() {
                   ) : user ? (
                     <>
                       <div className="flex items-center gap-2.5 px-1 pb-1">
-                        <div className="flex size-8 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground ring-1 ring-border">
+                        <div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground ring-1 ring-border">
                           <UserAvatar
                             key={user.image}
                             src={user.image}

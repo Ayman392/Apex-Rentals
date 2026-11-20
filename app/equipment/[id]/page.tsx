@@ -404,7 +404,7 @@ export default function EquipmentDetailsPage() {
                 size="lg"
                 onClick={() => setBookingOpen(true)}
                 disabled={!isAvailable || Boolean(isOwner)}
-                className="shadow-coral h-11 flex-1 rounded-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                className="shadow-coral h-11 sm-flex-1 rounded-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90"
               >
                 <Calendar className="mr-2 size-4" />
                 {isOwner
