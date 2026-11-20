@@ -153,6 +153,8 @@ export function Navbar() {
     router.refresh();
   }
 
+  if (pathname.startsWith("/dashboard")) return null;
+
   return (
     <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
       <nav className="glass-strong w-full max-w-6xl rounded-2xl">
