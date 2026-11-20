@@ -4,7 +4,7 @@ import { jwt } from "better-auth/plugins";
 import { MongoClient } from "mongodb";
 
 const client = new MongoClient(process.env.MONGODB_URI!);
-const db = client.db();
+const db = client.db(process.env.DB_NAME || "apex-rentals");
 
 const baseURL = (process.env.BETTER_AUTH_URL || "http://localhost:3000").replace(/\/$/, "");
 
