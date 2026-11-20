@@ -6,7 +6,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion, type Transition } from "framer-motion";
 import {
-  ArrowRight,
   ChevronDown,
   LayoutDashboard,
   LogOut,
@@ -203,14 +202,6 @@ export function Navbar() {
                           </Link>
                         ))}
                       </div>
-                      <Link
-                        href="/equipment"
-                        onClick={() => setCategoriesOpen(false)}
-                        className="glass-accent mt-3 flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-foreground"
-                      >
-                        View all equipment
-                        <ArrowRight className="size-4 text-coral-text" />
-                      </Link>
                     </motion.div>
                   </div>
                 )}

@@ -309,3 +309,12 @@ input:-webkit-autofill:active {
   transition: background-color 5000s ease-in-out 0s;
   box-shadow: inset 0 0 0 1000px transparent;
 }
+
+@keyframes ios-spinner-fade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.15;
+  }
+}
