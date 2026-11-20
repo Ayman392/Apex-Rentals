@@ -298,3 +298,14 @@
   }
   .glass-on-photo { background: rgb(10 14 26 / 0.8); }
 }
+
+/* Keep browser autofill from painting a solid box inside rounded inputs */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--foreground);
+  caret-color: var(--foreground);
+  transition: background-color 5000s ease-in-out 0s;
+  box-shadow: inset 0 0 0 1000px transparent;
+}

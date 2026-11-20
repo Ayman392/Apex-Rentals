@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion, type Transition } from "framer-motion";
 import {
   ArrowRight,
@@ -11,11 +11,14 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  User,
   X,
 } from "lucide-react";
+import { toast } from "sonner";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { signOut, useSession } from "@/lib/auth-client";
 
 const spring: Transition = {
   type: "spring",
@@ -35,13 +38,6 @@ const CATEGORIES = [
   name,
   href: `/equipment?category=${encodeURIComponent(name)}`,
 }));
-
-type AuthUser = { name: string; photo?: string };
-
-// TODO: replace with the real BetterAuth session once auth is wired up
-function useAuthUser(): AuthUser | null {
-  return null;
-}
 
 function Brand() {
   return (
@@ -104,12 +100,32 @@ function NavLink({ href, label, active, hovered, onHover }: NavLinkProps) {
 
 export function Navbar() {
   const pathname = usePathname();
-  const user = useAuthUser();
+  const router = useRouter();
+  const { data: session, isPending } = useSession();
+  const user = session?.user ?? null;
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const closeMobile = () => setMobileOpen(false);
+
+  async function handleLogout() {
+    setLoggingOut(true);
+    const { error } = await signOut();
+    setLoggingOut(false);
+
+    if (error) {
+      toast.error(error.message || "Failed to log out.");
+      return;
+    }
+
+    toast.success("Logged out successfully.");
+    closeMobile();
+    router.push("/");
+    router.refresh();
+  }
 
   return (
     <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
@@ -220,7 +236,9 @@ export function Navbar() {
           {/* Desktop actions */}
           <div className="hidden items-center gap-2 md:flex">
             <ThemeToggle />
-            {user ? (
+            {isPending ? (
+              <div className="h-8 w-36 animate-pulse rounded-full bg-muted" />
+            ) : user ? (
               <>
                 <Link
                   href="/dashboard"
@@ -231,14 +249,31 @@ export function Navbar() {
                 </Link>
                 <button
                   type="button"
+                  disabled={loggingOut}
                   className={buttonVariants({ variant: "outline", size: "sm" })}
-                  onClick={() => {
-                    /* TODO: BetterAuth signOut */
-                  }}
+                  onClick={handleLogout}
                 >
                   <LogOut className="size-4" />
-                  Logout
+                  {loggingOut ? "Logging out..." : "Logout"}
                 </button>
+                <Link
+                  href="/dashboard/profile"
+                  title={`${user.name} (${user.role || "Customer"})`}
+                  className="flex size-8 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground ring-1 ring-border"
+                >
+                  {user.image ? (
+                    <Image
+                      src={user.image}
+                      alt={user.name || "User"}
+                      width={32}
+                      height={32}
+                      unoptimized
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    <User className="size-4" />
+                  )}
+                </Link>
               </>
             ) : (
               <>
@@ -314,22 +349,46 @@ export function Navbar() {
                     Theme
                     <ThemeToggle />
                   </div>
-                  {user ? (
+                  {isPending ? (
+                    <div className="h-9 w-full animate-pulse rounded-lg bg-muted" />
+                  ) : user ? (
                     <>
+                      <div className="flex items-center gap-2.5 px-1 pb-1">
+                        <div className="flex size-8 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground ring-1 ring-border">
+                          {user.image ? (
+                            <Image
+                              src={user.image}
+                              alt={user.name || "User"}
+                              width={32}
+                              height={32}
+                              unoptimized
+                              className="size-full object-cover"
+                            />
+                          ) : (
+                            <User className="size-4" />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-foreground">
+                            {user.name}
+                          </p>
+                          <p className="truncate text-xs text-muted-foreground">
+                            {user.role || "Customer"}
+                          </p>
+                        </div>
+                      </div>
                       <Link href="/dashboard" onClick={closeMobile} className={buttonVariants({ variant: "ghost" })}>
                         <LayoutDashboard className="size-4" />
                         Dashboard
                       </Link>
                       <button
                         type="button"
+                        disabled={loggingOut}
                         className={buttonVariants({ variant: "outline" })}
-                        onClick={() => {
-                          /* TODO: BetterAuth signOut */
-                          closeMobile();
-                        }}
+                        onClick={handleLogout}
                       >
                         <LogOut className="size-4" />
-                        Logout
+                        {loggingOut ? "Logging out..." : "Logout"}
                       </button>
                     </>
                   ) : (
