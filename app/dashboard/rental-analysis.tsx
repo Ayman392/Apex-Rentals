@@ -9,40 +9,82 @@ import {
   KpiCard,
 } from "@/components/ui/revenue-charts-kpi";
 
-const RANGES = {
-  "6m": ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov"],
-  "12m": [
-    "Dec",
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-  ],
-} as const;
+interface MonthlyPoint {
+  month: string;
+  primary: number;
+  secondary: number;
+  completed: number;
+  active: number;
+  pending: number;
+}
 
-const REVENUE_PRIMARY = [
-  3100, 3400, 3800, 4100, 4600, 5200, 5800, 6400, 7100, 7900, 8800, 9600,
-];
-const REVENUE_SECONDARY = [
-  1100, 1250, 1400, 1550, 1750, 1950, 2100, 2350, 2600, 2900, 3200, 3550,
-];
+interface AnalyticsPayload {
+  kpis?: {
+    totalUsers?: number;
+    totalEquipment?: number;
+    totalBookings?: number;
+    pendingApprovals?: number;
+    completedRentals?: number;
+    totalRevenue?: number;
+    totalListedEquipment?: number;
+    totalEarnings?: number;
+  };
+  monthly?: MonthlyPoint[];
+  breakdown?: { label: string; value: number }[];
+}
 
-const BOOKINGS_COMPLETED = [
-  14, 16, 18, 21, 24, 27, 30, 34, 38, 42, 46, 51,
-];
-const BOOKINGS_ACTIVE = [8, 9, 11, 12, 14, 15, 17, 19, 21, 23, 25, 28];
-const BOOKINGS_PENDING = [4, 5, 4, 6, 5, 7, 6, 8, 7, 6, 5, 4];
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ||
+  "http://localhost:5000";
 
 const usdShort = (v: number) =>
   v >= 1000 ? `$${(v / 1000).toFixed(v % 1000 ? 1 : 0)}k` : `$${v}`;
 const usdFull = (v: number) => `$${v.toLocaleString()}`;
+
+async function getAuthHeaders(): Promise<HeadersInit> {
+  if (typeof window === "undefined") return {};
+
+  try {
+    const res = await fetch("/api/auth/token", {
+      credentials: "include",
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const jwtToken =
+        data?.token || data?.jwt || data?.accessToken || data?.data?.token;
+      if (typeof jwtToken === "string" && jwtToken.trim()) {
+        return { Authorization: `Bearer ${jwtToken.trim()}` };
+      }
+    }
+  } catch {
+    // Fall back to storage lookup below
+  }
+
+  const keys = [
+    "accessToken",
+    "token",
+    "jwt",
+    "authToken",
+    "apex_token",
+    "better-auth.session_token",
+  ];
+  for (const key of keys) {
+    const raw =
+      window.localStorage.getItem(key) || window.sessionStorage.getItem(key);
+    if (raw) {
+      const clean = raw
+        .replace(/^Bearer\s+/i, "")
+        .replace(/^"|"$/g, "")
+        .trim();
+      if (clean) {
+        return { Authorization: `Bearer ${clean}` };
+      }
+    }
+  }
+
+  return {};
+}
 
 export interface RentalAnalyticsProps {
   role?: "admin" | "owner" | string;
@@ -50,59 +92,126 @@ export interface RentalAnalyticsProps {
 
 export function RentalAnalytics({ role = "admin" }: RentalAnalyticsProps) {
   const isOwner = role.toLowerCase() === "owner";
-  const [range, setRange] = React.useState<keyof typeof RANGES>("6m");
+  const [range, setRange] = React.useState<"6m" | "12m">("6m");
+  const [payload, setPayload] = React.useState<AnalyticsPayload | null>(null);
+  const [fetchedForOwner, setFetchedForOwner] = React.useState<boolean | null>(
+    null,
+  );
 
-  const months = RANGES[range];
-  const off = 12 - months.length;
-  const scale = isOwner ? 0.45 : 1;
+  const loading = fetchedForOwner !== isOwner;
 
-  const areaData = months.map((m, i) => ({
-    month: m,
-    primary: Math.round(REVENUE_PRIMARY[off + i] * scale),
-    secondary: Math.round(REVENUE_SECONDARY[off + i] * scale),
+  React.useEffect(() => {
+    let active = true;
+    const endpoint = isOwner ? "/owner/analytics" : "/admin/analytics";
+
+    (async () => {
+      try {
+        const authHeaders = await getAuthHeaders();
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            ...authHeaders,
+          },
+        });
+
+        if (!res.ok) {
+          console.warn(
+            `Analytics fetch returned ${res.status} for ${endpoint}`,
+          );
+          if (active) setFetchedForOwner(isOwner);
+          return;
+        }
+
+        const data: AnalyticsPayload = await res.json();
+        if (active) {
+          setPayload(data);
+          setFetchedForOwner(isOwner);
+        }
+      } catch (err) {
+        console.warn("Analytics error:", err);
+        if (active) {
+          setFetchedForOwner(isOwner);
+        }
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [isOwner]);
+
+  const fullMonthly = React.useMemo<MonthlyPoint[]>(() => {
+    if (payload?.monthly?.length) return payload.monthly;
+    const months = [
+      "Dec",
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+    ];
+    return months.map((month) => ({
+      month,
+      primary: 0,
+      secondary: 0,
+      completed: 0,
+      active: 0,
+      pending: 0,
+    }));
+  }, [payload]);
+
+  const sliceCount = range === "6m" ? 6 : 12;
+  const visibleMonthly = fullMonthly.slice(-sliceCount);
+
+  const areaData = visibleMonthly.map((m) => ({
+    month: m.month,
+    primary: m.primary,
+    secondary: m.secondary,
   }));
 
-  const barData = months.map((m, i) => ({
-    month: m,
-    completed: Math.max(1, Math.round(BOOKINGS_COMPLETED[off + i] * scale)),
-    active: Math.max(1, Math.round(BOOKINGS_ACTIVE[off + i] * scale)),
-    pending: Math.max(0, Math.round(BOOKINGS_PENDING[off + i] * scale)),
+  const barData = visibleMonthly.map((m) => ({
+    month: m.month,
+    completed: m.completed,
+    active: m.active,
+    pending: m.pending,
   }));
 
-  const firstTotal = areaData[0].primary + areaData[0].secondary;
-  const lastTotal =
-    areaData[areaData.length - 1].primary +
-    areaData[areaData.length - 1].secondary;
-  const prevTotal =
-    areaData[areaData.length - 2].primary +
-    areaData[areaData.length - 2].secondary;
+  const latest = visibleMonthly[visibleMonthly.length - 1] || {
+    month: "Now",
+    primary: 0,
+    secondary: 0,
+    completed: 0,
+    active: 0,
+    pending: 0,
+  };
+  const previous = visibleMonthly[visibleMonthly.length - 2] || latest;
+  const first = visibleMonthly[0] || latest;
 
-  const lastBookings =
-    barData[barData.length - 1].completed +
-    barData[barData.length - 1].active +
-    barData[barData.length - 1].pending;
-  const prevBookings =
-    barData[barData.length - 2].completed +
-    barData[barData.length - 2].active +
-    barData[barData.length - 2].pending;
+  const latestTotal = latest.primary + latest.secondary;
+  const prevTotal = previous.primary + previous.secondary;
+  const firstTotal = first.primary + first.secondary;
 
-  const lastPending = barData[barData.length - 1].pending;
-  const prevPending = Math.max(1, barData[barData.length - 2].pending);
+  const totalRevenueOrEarnings = isOwner
+    ? (payload?.kpis?.totalEarnings ?? latestTotal)
+    : (payload?.kpis?.totalRevenue ?? latestTotal);
 
-  const lastMonthLabel = months[months.length - 1];
-  const prevMonthLabel = months[months.length - 2];
+  const totalItemsCount = isOwner
+    ? (payload?.kpis?.totalListedEquipment ?? 0)
+    : (payload?.kpis?.totalEquipment ?? 0);
 
-  const breakdownSlices = isOwner
-    ? [
-        { label: "Photography & AV", value: 2450 },
-        { label: "Construction Gear", value: 1820 },
-        { label: "Event & Stage", value: 1180 },
-      ]
-    : [
-        { label: "Construction Equipment", value: 5340 },
-        { label: "Photography & Electronics", value: 4480 },
-        { label: "Vehicles & Agriculture", value: 2080 },
-      ];
+  const completedCount = payload?.kpis?.completedRentals ?? 0;
+
+  const breakdownSlices =
+    payload?.breakdown && payload.breakdown.length > 0
+      ? payload.breakdown
+      : [{ label: "No rental data yet", value: 0 }];
 
   return (
     <div
@@ -128,12 +237,12 @@ export function RentalAnalytics({ role = "admin" }: RentalAnalyticsProps) {
               {isOwner ? "Owner Earnings & Rentals" : "Platform Analytics"}
             </h2>
             <p className="mt-1 text-[13px] text-muted-foreground">
-              {months[0]} – {lastMonthLabel} · up{" "}
-              {Math.max(
-                0,
-                Math.round((lastTotal / Math.max(1, firstTotal) - 1) * 100),
-              )}
-              % over the period
+              {visibleMonthly[0]?.month} – {latest.month} ·{" "}
+              {loading
+                ? "Syncing live MongoDB data..."
+                : firstTotal > 0
+                  ? `${Math.round(((latestTotal - firstTotal) / firstTotal) * 100)}% over period`
+                  : "Live database metrics"}
             </p>
           </div>
 
@@ -163,63 +272,83 @@ export function RentalAnalytics({ role = "admin" }: RentalAnalyticsProps) {
 
         <div className="grid gap-3 sm:grid-cols-3">
           <KpiCard
-            label={isOwner ? "Monthly earnings" : "Monthly revenue"}
-            value={usdFull(lastTotal)}
-            delta={lastTotal / Math.max(1, prevTotal) - 1}
-            period={`vs ${prevMonthLabel}`}
+            label={isOwner ? "Total earnings" : "Total revenue"}
+            value={usdFull(totalRevenueOrEarnings)}
+            delta={prevTotal > 0 ? (latestTotal - prevTotal) / prevTotal : 0}
+            period={`vs ${previous.month}`}
             trend={areaData.map((r) => r.primary + r.secondary)}
           />
           <KpiCard
-            label={isOwner ? "Monthly rentals" : "Monthly bookings"}
-            value={String(lastBookings)}
-            delta={lastBookings / Math.max(1, prevBookings) - 1}
-            period={`vs ${prevMonthLabel}`}
+            label={isOwner ? "Total listed equipment" : "Total equipment"}
+            value={String(totalItemsCount)}
+            delta={
+              previous.completed > 0
+                ? (latest.completed - previous.completed) / previous.completed
+                : 0
+            }
+            period={`vs ${previous.month}`}
             trend={barData.map((b) => b.completed + b.active + b.pending)}
           />
           <KpiCard
-            label={isOwner ? "Pending requests" : "Pending approvals"}
-            value={String(lastPending)}
-            delta={(lastPending - prevPending) / prevPending}
+            label="Completed rentals"
+            value={String(completedCount)}
+            delta={
+              previous.pending > 0
+                ? (latest.pending - previous.pending) / previous.pending
+                : 0
+            }
             good="down"
-            period={`vs ${prevMonthLabel}`}
+            period={`vs ${previous.month}`}
           />
         </div>
 
+        {!isOwner && (
+          <div className="grid gap-3 sm:grid-cols-3">
+            <KpiCard
+              label="Total users"
+              value={String(payload?.kpis?.totalUsers ?? 0)}
+            />
+            <KpiCard
+              label="Total bookings"
+              value={String(payload?.kpis?.totalBookings ?? 0)}
+            />
+            <KpiCard
+              label="Pending approvals"
+              value={String(payload?.kpis?.pendingApprovals ?? 0)}
+              good="down"
+            />
+          </div>
+        )}
+
         <div className="grid gap-3 lg:grid-cols-2">
           <ChartCard
-            title={isOwner ? "Earnings trend" : "Revenue trend"}
+            title={isOwner ? "Monthly earnings trend" : "Monthly revenue trend"}
             subtitle={
               isOwner
-                ? "Direct rentals and extensions"
-                : "Completed and active rentals"
+                ? "Completed vs active rental amounts"
+                : "Completed vs active booking amounts"
             }
           >
             <AreaTrend
               data={areaData}
               xKey="month"
               format={usdShort}
-              description={`Monthly ${isOwner ? "earnings" : "revenue"}, ${months[0]} to ${lastMonthLabel}`}
+              description={`Monthly ${isOwner ? "earnings" : "revenue"}, ${visibleMonthly[0]?.month} to ${latest.month}`}
               series={[
-                {
-                  key: "primary",
-                  label: isOwner ? "Direct" : "Completed",
-                },
-                {
-                  key: "secondary",
-                  label: isOwner ? "Extended" : "Active",
-                },
+                { key: "primary", label: "Completed" },
+                { key: "secondary", label: "Active" },
               ]}
             />
           </ChartCard>
 
           <ChartCard
-            title={isOwner ? "Equipment rentals" : "Monthly bookings"}
+            title={isOwner ? "Monthly rentals" : "Monthly booking statistics"}
             subtitle="By rental status"
           >
             <BarCompare
               data={barData}
               xKey="month"
-              description={`Monthly bookings by status, ${months[0]} to ${lastMonthLabel}`}
+              description={`Monthly bookings by status, ${visibleMonthly[0]?.month} to ${latest.month}`}
               series={[
                 { key: "completed", label: "Completed" },
                 { key: "active", label: "Active" },
@@ -229,12 +358,12 @@ export function RentalAnalytics({ role = "admin" }: RentalAnalyticsProps) {
           </ChartCard>
 
           <ChartCard
-            title={`Where ${lastMonthLabel}'s ${isOwner ? "earnings" : "revenue"} came from`}
+            title={`Where ${latest.month}'s ${isOwner ? "earnings" : "revenue"} came from`}
             className="lg:col-span-2"
           >
             <DonutBreakdown
               format={usdFull}
-              description={`${lastMonthLabel} breakdown by equipment category`}
+              description={`${latest.month} breakdown by category`}
               data={breakdownSlices}
             />
           </ChartCard>
