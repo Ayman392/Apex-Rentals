@@ -55,10 +55,10 @@ function getRoleNavItems(role?: string | null): NavItem[] {
   if (normalized === "admin") {
     return [
       { label: "Overview", href: "/dashboard", icon: LayoutGrid },
-      { label: "All Users", href: "/dashboard/users", icon: Users },
+      { label: "All Users", href: "/dashboard/all-users", icon: Users },
       {
         label: "Manage Equipment",
-        href: "/dashboard/manage-equipment",
+        href: "/dashboard/all-equipment",
         icon: ShieldCheck,
       },
       {

@@ -15,12 +15,12 @@ export default function DashboardOverviewPage() {
           {
             title: "Manage Users",
             desc: "View all registered accounts and update roles.",
-            href: "/dashboard/users",
+            href: "/dashboard/all-users",
           },
           {
             title: "Manage Equipment",
             desc: "Approve, reject, or remove owner equipment listings.",
-            href: "/dashboard/manage-equipment",
+            href: "/dashboard/all-equipment",
           },
           {
             title: "All Rentals",
