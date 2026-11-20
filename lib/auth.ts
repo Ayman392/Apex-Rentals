@@ -10,6 +10,10 @@ const baseURL = (process.env.BETTER_AUTH_URL || "http://localhost:3000").replace
 
 export const auth = betterAuth({
   baseURL,
+  trustedOrigins: [
+    "http://localhost:3000",
+    "https://apex-rentals-psi.vercel.app",
+  ],
   database: mongodbAdapter(db),
   emailAndPassword: {
     enabled: true,
