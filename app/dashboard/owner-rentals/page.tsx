@@ -6,6 +6,7 @@ import { CalendarClock, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { IOSSpinner } from "@/components/ui/ios-spinner";
 import { useSession } from "@/lib/auth-client";
+import { buildEquipmentUrl } from "@/lib/slug";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -255,7 +256,10 @@ export default function BookingRequestsPage() {
                       <td className="px-5 py-4 font-medium text-foreground">
                         {item.equipmentId ? (
                           <Link
-                            href={`/equipment/${item.equipmentId}`}
+                            href={buildEquipmentUrl({
+                              _id: item.equipmentId,
+                              name: equipmentName,
+                            })}
                             className="inline-flex items-center gap-1.5 hover:text-coral-text hover:underline"
                           >
                             <span className="max-w-[200px] truncate">

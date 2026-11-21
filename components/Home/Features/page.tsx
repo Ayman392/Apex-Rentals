@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import type { Equipment } from "@/lib/equipment";
+import { buildEquipmentUrl } from "@/lib/slug";
 import { SectionTitle } from "@/components/ui/section-title";
 
 const UNIT = { Daily: "day", Weekly: "week", Monthly: "month" } as const;
@@ -145,7 +146,7 @@ function GlassCard({
           </p>
 
           <Link
-            href={`/equipment/${item._id}`}
+            href={buildEquipmentUrl(item)}
             className="mt-3 flex items-center justify-between rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-[0_8px_20px_-8px_rgb(255_107_26/0.6)] transition-colors duration-300 hover:bg-primary/90"
           >
             View Details

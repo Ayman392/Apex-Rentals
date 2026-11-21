@@ -33,12 +33,14 @@ import {
 } from "@/components/ui/dialog";
 import { IOSSpinner } from "@/components/ui/ios-spinner";
 import { useSession } from "@/lib/auth-client";
+import { buildEquipmentUrl, extractSlugOrId } from "@/lib/slug";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 type EquipmentDetail = {
   _id: string;
   name: string;
+  slug?: string;
   category: string;
   price: number;
   rentalType: "Daily" | "Weekly" | "Monthly" | string;
@@ -64,7 +66,13 @@ function durationUnit(rentalType: string, count: number) {
 
 export default function EquipmentDetailsPage() {
   const params = useParams<{ id: string }>();
-  const id = params?.id;
+  const rawSlug = params?.id || "";
+
+  return <EquipmentDetailsContent key={rawSlug} rawSlug={rawSlug} />;
+}
+
+function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
+  const parsedParam = extractSlugOrId(rawSlug);
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const user = session?.user ?? null;
@@ -72,7 +80,8 @@ export default function EquipmentDetailsPage() {
   const [bookingOpen, setBookingOpen] = useState(false);
 
   const [item, setItem] = useState<EquipmentDetail | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [imgFailed, setImgFailed] = useState(false);
+  const [fetchedSlug, setFetchedSlug] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Favorites state
@@ -86,25 +95,34 @@ export default function EquipmentDetailsPage() {
   const [quantity, setQuantity] = useState(1);
   const [bookingLoading, setBookingLoading] = useState(false);
 
-  // Private route guard (waits for session to finish loading)
-  useEffect(() => {
-    if (!isPending && !user && id) {
-      router.replace(
-        `/login?callbackUrl=${encodeURIComponent(`/equipment/${id}`)}`,
-      );
-    }
-  }, [isPending, user, id, router]);
+  const isSlugLoaded = fetchedSlug === rawSlug;
 
-  // Fetch equipment details
+  // Private route guard: store return path in sessionStorage and redirect cleanly to /login
   useEffect(() => {
-    if (!id || isPending || !user) return;
+    if (!isPending && !user && rawSlug) {
+      try {
+        sessionStorage.setItem("apex_callback_url", `/equipment/${rawSlug}`);
+      } catch {
+        // Ignore storage errors in restricted browsing modes
+      }
+      router.replace("/login");
+    }
+  }, [isPending, user, rawSlug, router]);
+
+  // Fetch equipment details by ID or slug
+  useEffect(() => {
+    if ((!parsedParam.id && !parsedParam.slug) || isPending || !user) return;
 
     const controller = new AbortController();
+
     async function loadEquipment() {
-      setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${API_BASE}/equipment/${id}`, {
+        const endpoint = parsedParam.id
+          ? `${API_BASE}/equipment/${encodeURIComponent(parsedParam.id)}`
+          : `${API_BASE}/equipment/slug/${encodeURIComponent(parsedParam.slug)}`;
+
+        const res = await fetch(endpoint, {
           signal: controller.signal,
         });
         if (!res.ok) {
@@ -115,21 +133,34 @@ export default function EquipmentDetailsPage() {
           );
         }
         const data: EquipmentDetail = await res.json();
+        if (controller.signal.aborted) return;
+
         setItem(data);
+        setImgFailed(false);
+        setError(null);
+
+        // Normalize /equipment/<id> or /equipment/<slug>-<id> to clean /equipment/<slug>
+        const canonicalPath = buildEquipmentUrl(data);
+        const currentPath = `/equipment/${decodeURIComponent(rawSlug).trim()}`;
+        if (rawSlug && currentPath !== canonicalPath) {
+          router.replace(canonicalPath, { scroll: false });
+        }
       } catch (err) {
-        if ((err as Error).name !== "AbortError") {
+        if ((err as Error).name !== "AbortError" && !controller.signal.aborted) {
           setError(
             err instanceof Error ? err.message : "Something went wrong.",
           );
         }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setFetchedSlug(rawSlug);
+        }
       }
     }
 
     loadEquipment();
     return () => controller.abort();
-  }, [id, isPending, user]);
+  }, [parsedParam.id, parsedParam.slug, isPending, user, rawSlug, router]);
 
   async function handleAddToFavorites() {
     if (!item || !user) return;
@@ -219,7 +250,7 @@ export default function EquipmentDetailsPage() {
   }
 
   // Loading / Auth pending state
-  if (isPending || (!user && !error) || loading) {
+  if (isPending || (!user && !error) || !isSlugLoaded) {
     return (
       <div className="flex min-h-screen items-center justify-center pt-24">
         <IOSSpinner size={34} className="text-foreground/80" />
@@ -239,18 +270,19 @@ export default function EquipmentDetailsPage() {
             This item may have been removed or is no longer available.
           </p>
           <Link
-  href="/equipment"
-  className={cn(buttonVariants(), "shadow-coral mt-6 rounded-full")}
->
-  <ArrowLeft className="mr-2 size-4" />
-  Back to All Equipment
-</Link>
+            href="/equipment"
+            className={cn(buttonVariants(), "shadow-coral mt-6 rounded-full")}
+          >
+            <ArrowLeft className="mr-2 size-4" />
+            Back to All Equipment
+          </Link>
         </div>
       </div>
     );
   }
 
-  const imgSrc = item.image || item.imageUrl || "/placeholder.png";
+  const rawImgSrc = item.image || item.imageUrl;
+  const imgSrc = !imgFailed && rawImgSrc ? rawImgSrc : "/demo/1.jpg";
   const isAvailable = item.availableQuantity > 0;
   const isOwner = user?.email && item.ownerEmail === user.email;
   const totalCost = item.price * duration * quantity;
@@ -279,6 +311,7 @@ export default function EquipmentDetailsPage() {
                   fill
                   priority
                   unoptimized
+                  onError={() => setImgFailed(true)}
                   className="object-cover"
                 />
                 <div className="absolute start-3 top-3">
@@ -404,7 +437,7 @@ export default function EquipmentDetailsPage() {
                 size="lg"
                 onClick={() => setBookingOpen(true)}
                 disabled={!isAvailable || Boolean(isOwner)}
-                className="shadow-coral h-11 sm-flex-1 rounded-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                className="shadow-coral h-11 rounded-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90 sm:flex-1"
               >
                 <Calendar className="mr-2 size-4" />
                 {isOwner

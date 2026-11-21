@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { buttonVariants } from "@/components/ui/button";
 import { IOSSpinner } from "@/components/ui/ios-spinner";
 import { useSession } from "@/lib/auth-client";
+import { buildEquipmentUrl } from "@/lib/slug";
 import { cn } from "@/lib/utils";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -58,7 +59,7 @@ export default function MyFavoritesPage() {
     if (!session?.user) return;
     let cancelled = false;
 
-async function loadFavorites() {
+    async function loadFavorites() {
       try {
         const headers = await getAuthHeaders();
         const emailParam = encodeURIComponent(session?.user?.email || "");
@@ -196,8 +197,7 @@ async function loadFavorites() {
               <tbody className="divide-y divide-border/70">
                 {favorites.map((fav) => {
                   const eq = fav.equipment;
-                  const equipmentId =
-                    fav.equipmentId || eq?._id || fav._id;
+                  const equipmentId = fav.equipmentId || eq?._id || fav._id;
                   const name =
                     fav.name ||
                     fav.title ||
@@ -267,7 +267,7 @@ async function loadFavorites() {
                       <td className="whitespace-nowrap px-5 py-4 text-right">
                         <div className="inline-flex items-center justify-end gap-2">
                           <Link
-                            href={`/equipment/${equipmentId}`}
+                            href={buildEquipmentUrl({ _id: equipmentId, name })}
                             className={cn(
                               buttonVariants({ variant: "outline", size: "sm" }),
                               "rounded-full",
@@ -282,7 +282,10 @@ async function loadFavorites() {
                             disabled={isRemoving}
                             onClick={() => handleRemove(fav)}
                             className={cn(
-                              buttonVariants({ variant: "destructive", size: "sm" }),
+                              buttonVariants({
+                                variant: "destructive",
+                                size: "sm",
+                              }),
                               "rounded-full",
                             )}
                           >

@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { buttonVariants } from "@/components/ui/button";
 import { IOSSpinner } from "@/components/ui/ios-spinner";
 import { useSession } from "@/lib/auth-client";
+import { buildEquipmentUrl } from "@/lib/slug";
 import { cn } from "@/lib/utils";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -298,7 +299,7 @@ export default function AllEquipmentAdminPage() {
                           </div>
                           <div>
                             <Link
-                              href={`/equipment/${item._id}`}
+                              href={buildEquipmentUrl(item)}
                               className="inline-flex items-center gap-1 font-medium text-foreground hover:text-coral-text hover:underline"
                             >
                               <span className="max-w-[210px] truncate">

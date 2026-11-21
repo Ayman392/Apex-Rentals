@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { buttonVariants } from "@/components/ui/button";
 import { IOSSpinner } from "@/components/ui/ios-spinner";
 import { useSession } from "@/lib/auth-client";
+import { buildEquipmentUrl } from "@/lib/slug";
 import { cn } from "@/lib/utils";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -232,7 +233,10 @@ export default function MyRentalsPage() {
                       <td className="px-5 py-4 font-medium text-foreground">
                         {item.equipmentId ? (
                           <Link
-                            href={`/equipment/${item.equipmentId}`}
+                            href={buildEquipmentUrl({
+                              _id: item.equipmentId,
+                              name,
+                            })}
                             className="inline-flex items-center gap-1.5 hover:text-coral-text hover:underline"
                           >
                             <span className="max-w-[220px] truncate">
@@ -244,16 +248,16 @@ export default function MyRentalsPage() {
                           <span className="max-w-[220px] truncate">{name}</span>
                         )}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-muted-foreground text-center">
+                      <td className="whitespace-nowrap px-4 py-4 text-center text-muted-foreground">
                         {formatDate(startDate)}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-muted-foreground text-center">
+                      <td className="whitespace-nowrap px-4 py-4 text-center text-muted-foreground">
                         {formatDate(endDate)}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-muted-foreground text-center">
+                      <td className="whitespace-nowrap px-4 py-4 text-center text-muted-foreground">
                         {formatDate(bookingDate)}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 font-semibold text-foreground text-center">
+                      <td className="whitespace-nowrap px-4 py-4 text-center font-semibold text-foreground">
                         ${total.toFixed(2)}
                       </td>
                       <td className="whitespace-nowrap px-4 py-4 text-center">

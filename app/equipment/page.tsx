@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { IOSSpinner } from "@/components/ui/ios-spinner";
 import { SectionTitle } from "@/components/ui/section-title";
+import { buildEquipmentUrl } from "@/lib/slug";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -413,7 +414,7 @@ function EquipmentCatalog() {
           <span className="text-xs font-medium uppercase tracking-wider text-coral-text">
             Rentals
           </span>
-          <SectionTitle text="All Equipment" className="text-5xl"/>
+          <SectionTitle text="All Equipment" className="text-5xl" />
           <p className="text-base leading-relaxed text-muted-foreground">
             Verified tools, cameras, vehicles, and event gear ready to book by
             the day, week, or month.
@@ -565,6 +566,7 @@ function EquipmentCatalog() {
                   const imgSrc =
                     item.image || item.imageUrl || "/placeholder.png";
                   const isAvailable = item.availableQuantity > 0;
+                  const equipmentHref = buildEquipmentUrl(item);
 
                   return (
                     <article
@@ -573,7 +575,7 @@ function EquipmentCatalog() {
                     >
                       {/* Tall Editorial Image Card */}
                       <Link
-                        href={`/equipment/${item._id}`}
+                        href={equipmentHref}
                         className="relative aspect-[4/5] overflow-hidden rounded-xl border border-border bg-muted"
                       >
                         <Image
@@ -621,7 +623,7 @@ function EquipmentCatalog() {
                         </p>
 
                         <Link
-                          href={`/equipment/${item._id}`}
+                          href={equipmentHref}
                           className="mt-2 inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-lg border border-border bg-muted/40 text-xs font-medium text-foreground transition hover:border-primary/50 hover:bg-primary hover:text-primary-foreground"
                         >
                           View Details
