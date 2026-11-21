@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -49,8 +49,40 @@ type NavItem = {
   icon: React.ComponentType<{ className?: string }>;
 };
 
-function getRoleNavItems(role?: string | null): NavItem[] {
+type RoleKey = "customer" | "owner" | "admin";
+
+const ROLE_ALLOWED_SEGMENTS: Record<RoleKey, Set<string>> = {
+  customer: new Set(["", "my-rentals", "favorites", "profile"]),
+  owner: new Set([
+    "",
+    "add-equipment",
+    "my-equipment",
+    "owner-rentals",
+    "profile",
+  ]),
+  admin: new Set(["", "all-users", "all-equipment", "all-rentals", "profile"]),
+};
+
+function normalizeRole(role?: string | null): RoleKey {
   const normalized = (role || "customer").toLowerCase();
+  if (normalized === "admin") return "admin";
+  if (normalized === "owner") return "owner";
+  return "customer";
+}
+
+function isPathAllowedForRole(pathname: string, role: RoleKey): boolean {
+  const cleanPath = pathname.replace(/\/+$/, "") || "/dashboard";
+  if (cleanPath === "/dashboard") return true;
+
+  if (!cleanPath.startsWith("/dashboard/")) return true;
+  const subPath = cleanPath.slice("/dashboard/".length);
+  const topSegment = subPath.split("/")[0] || "";
+
+  return ROLE_ALLOWED_SEGMENTS[role].has(topSegment);
+}
+
+function getRoleNavItems(role?: string | null): NavItem[] {
+  const normalized = normalizeRole(role);
 
   if (normalized === "admin") {
     return [
@@ -142,8 +174,11 @@ export default function DashboardLayout({
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const [loggingOut, setLoggingOut] = useState(false);
+  const lastDeniedKeyRef = useRef<string | null>(null);
 
   const user = session?.user ?? null;
+  const activeRole = normalizeRole(user?.role);
+  const isRouteAuthorized = !user || isPathAllowedForRole(pathname, activeRole);
 
   useEffect(() => {
     if (!isPending && !user) {
@@ -151,7 +186,21 @@ export default function DashboardLayout({
     }
   }, [isPending, user, router]);
 
-  if (isPending || !user) {
+  useEffect(() => {
+    if (isPending || !user) return;
+    if (!isPathAllowedForRole(pathname, activeRole)) {
+      const denialKey = `${activeRole}:${pathname}`;
+      if (lastDeniedKeyRef.current !== denialKey) {
+        lastDeniedKeyRef.current = denialKey;
+        toast.error("You do not have permission to access that dashboard page.");
+      }
+      router.replace("/dashboard");
+    } else {
+      lastDeniedKeyRef.current = null;
+    }
+  }, [isPending, user, pathname, activeRole, router]);
+
+  if (isPending || !user || !isRouteAuthorized) {
     return (
       <div className="flex min-h-svh items-center justify-center bg-background">
         <IOSSpinner size={36} className="text-foreground/80" />
@@ -159,7 +208,7 @@ export default function DashboardLayout({
     );
   }
 
-  const roleLabel = (user.role || "Customer").toLowerCase();
+  const roleLabel = activeRole;
   const roleNavItems = getRoleNavItems(user.role);
 
   const allItems: NavItem[] = [
@@ -348,11 +397,11 @@ export default function DashboardLayout({
         </header>
 
         <div
-  data-lenis-prevent
-  className="flex min-h-0 flex-1 flex-col overflow-y-auto scroll-smooth p-5 sm:p-7"
->
-  {children}
-</div>
+          data-lenis-prevent
+          className="flex min-h-0 flex-1 flex-col overflow-y-auto scroll-smooth p-5 sm:p-7"
+        >
+          {children}
+        </div>
       </AnimatedSidebarInset>
     </AnimatedSidebarProvider>
   );
