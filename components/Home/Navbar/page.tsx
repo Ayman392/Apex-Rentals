@@ -132,6 +132,7 @@ export function Navbar() {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -148,6 +149,7 @@ export function Navbar() {
     }
 
     toast.success("Logged out successfully.");
+    setAccountOpen(false);
     closeMobile();
     router.push("/");
     router.refresh();
@@ -257,37 +259,88 @@ export function Navbar() {
           <div className="hidden shrink-0 items-center gap-2 lg:flex">
             <ThemeToggle />
             {isPending ? (
-              <div className="h-8 w-36 animate-pulse rounded-full bg-muted" />
+              <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
             ) : user ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  className={buttonVariants({ variant: "ghost", size: "sm" })}
-                >
-                  <LayoutDashboard className="size-4" />
-                  Dashboard
-                </Link>
+              <div
+                className="relative"
+                onMouseEnter={() => setAccountOpen(true)}
+                onMouseLeave={() => setAccountOpen(false)}
+              >
                 <button
                   type="button"
-                  disabled={loggingOut}
-                  className={buttonVariants({ variant: "outline", size: "sm" })}
-                  onClick={handleLogout}
+                  aria-label="Account menu"
+                  aria-expanded={accountOpen}
+                  onClick={() => setAccountOpen((v) => !v)}
+                  className="flex items-center gap-1.5 rounded-full p-0.5 pr-2 text-sm font-medium text-foreground transition hover:bg-foreground/10"
                 >
-                  <LogOut className="size-4" />
-                  {loggingOut ? "Logging out..." : "Logout"}
-                </button>
-                <Link
-                  href="/dashboard/profile"
-                  title={`${user.name} (${user.role || "Customer"})`}
-                  className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground ring-1 ring-border"
-                >
-                  <UserAvatar
-                    key={user.image}
-                    src={user.image}
-                    name={user.name}
+                  <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground ring-1 ring-border">
+                    <UserAvatar
+                      key={user.image}
+                      src={user.image}
+                      name={user.name}
+                    />
+                  </span>
+                  <ChevronDown
+                    className={cn(
+                      "size-3.5 text-muted-foreground transition-transform",
+                      accountOpen && "rotate-180",
+                    )}
                   />
-                </Link>
-              </>
+                </button>
+
+                <AnimatePresence>
+                  {accountOpen && (
+                    <div className="absolute right-0 top-full pt-7">
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.92, y: 8 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 6 }}
+                        transition={spring}
+                        className="glass-strong w-60 rounded-2xl p-3"
+                      >
+                        <div className="mb-2 border-b border-border px-2.5 pb-2.5">
+                          <p className="truncate text-sm font-semibold text-foreground">
+                            {user.name}
+                          </p>
+                          <p className="truncate text-xs font-medium text-coral-text">
+                            {user.role || "Customer"}
+                          </p>
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                          <Link
+                            href="/dashboard"
+                            onClick={() => setAccountOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
+                          >
+                            <LayoutDashboard className="size-4" />
+                            Dashboard
+                          </Link>
+
+                          <Link
+                            href="/dashboard/profile"
+                            onClick={() => setAccountOpen(false)}
+                            className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
+                          >
+                            <User className="size-4" />
+                            Profile
+                          </Link>
+
+                          <button
+                            type="button"
+                            disabled={loggingOut}
+                            onClick={handleLogout}
+                            className="mt-1 flex w-full items-center gap-2.5 rounded-lg border-t border-border px-2.5 pt-2.5 pb-2 text-left text-sm text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground disabled:opacity-50"
+                          >
+                            <LogOut className="size-4" />
+                            {loggingOut ? "Logging out..." : "Logout"}
+                          </button>
+                        </div>
+                      </motion.div>
+                    </div>
+                  )}
+                </AnimatePresence>
+              </div>
             ) : (
               <>
                 <Link

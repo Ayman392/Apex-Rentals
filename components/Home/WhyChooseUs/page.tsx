@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
-import { SectionTitle } from "@/components/ui/section-title";
+import { SectionTitle } from "@/components/ui/section-title"
 
 interface Feature {
   step: string
@@ -67,7 +67,7 @@ export function FeatureSteps({
   return (
     <div id="why-choose-us" className={cn("p-8 md:p-12", className)}>
       <div className="mx-auto w-full max-w-6xl px-6 py-10 sm:px-10">
-           <motion.div
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
@@ -78,39 +78,39 @@ export function FeatureSteps({
         </motion.div>
         <div className="flex flex-col mt-10 md:grid md:grid-cols-2 gap-6 md:gap-10">
           <div className="order-2 md:order-1 space-y-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                className="flex items-center gap-6 md:gap-8"
-                initial={{ opacity: 0.3 }}
-                animate={{ opacity: index === currentFeature ? 1 : 0.3 }}
-                transition={{ duration: 0.5 }}
-              >
-                <motion.div
-                  className={cn(
-                    "w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2",
-                    index === currentFeature
-                      ? "bg-primary border-primary text-primary-foreground scale-110"
-                      : "bg-muted border-muted-foreground",
-                  )}
-                >
-                  {index <= currentFeature ? (
-                    <span className="text-lg font-bold">✓</span>
-                  ) : (
-                    <span className="text-lg font-semibold">{index + 1}</span>
-                  )}
-                </motion.div>
+            {features.map((feature, index) => {
+              const isActive = index === currentFeature
 
-                <div className="flex-1">
-                  <h3 className="text-xl md:text-2xl font-semibold">
-                    {feature.title || feature.step}
-                  </h3>
-                  <p className="text-sm md:text-lg text-muted-foreground">
-                    {feature.content}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+              return (
+                <motion.div
+                  key={index}
+                  className="flex items-center gap-6 md:gap-8"
+                  initial={{ opacity: 0.3 }}
+                  animate={{ opacity: isActive ? 1 : 0.3 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <motion.div
+                    className={cn(
+                      "w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 shrink-0",
+                      isActive
+                        ? "bg-primary border-primary text-primary-foreground scale-110"
+                        : "bg-muted border-muted-foreground/50 text-muted-foreground",
+                    )}
+                  >
+                    <span className="text-sm md:text-base font-bold leading-none">✓</span>
+                  </motion.div>
+
+                  <div className="flex-1">
+                    <h3 className="text-xl md:text-2xl font-semibold">
+                      {feature.title || feature.step}
+                    </h3>
+                    <p className="text-sm md:text-lg text-muted-foreground">
+                      {feature.content}
+                    </p>
+                  </div>
+                </motion.div>
+              )
+            })}
           </div>
 
           <div
