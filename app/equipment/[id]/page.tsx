@@ -125,6 +125,10 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const user = session?.user ?? null;
+  const userRole = String(
+    (user as { role?: string } | null)?.role || "customer",
+  ).toLowerCase();
+  const isCustomer = userRole === "customer";
 
   const [bookingOpen, setBookingOpen] = useState(false);
 
@@ -247,7 +251,7 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
   }
 
   async function handleAddToFavorites() {
-    if (!item || !user) return;
+    if (!item || !user || !isCustomer) return;
     setFavoriting(true);
     try {
       const headers = await getAuthHeaders();
@@ -277,7 +281,7 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
   }
 
   async function handleProceedToPayment() {
-    if (!item || !user) return;
+    if (!item || !user || !isCustomer) return;
 
     if (!startDate) {
       toast.error("Please select a rental start date.");
@@ -556,38 +560,44 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex flex-col gap-3 pt-2 sm:flex-row">
-              <InteractiveHoverButton
-                type="button"
-                onClick={() => setBookingOpen(true)}
-                disabled={!isAvailable || Boolean(isOwner)}
-                text={bookButtonLabel}
-                dotClassName="size-2.5"
-                durationClassName="duration-300"
-                className="h-11 w-full sm:flex-1"
-              />
-
-              <Button
-                type="button"
-                size="lg"
-                variant="outline"
-                onClick={handleAddToFavorites}
-                disabled={favoriting || isFavorited}
-                className="h-11 rounded-full px-6 text-sm font-medium"
-              >
-                <Heart
-                  className={`mr-2 size-4 ${
-                    isFavorited ? "fill-primary text-primary" : ""
-                  }`}
+            {/* Action Buttons or Non-Customer Note */}
+            {isCustomer ? (
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+                <InteractiveHoverButton
+                  type="button"
+                  onClick={() => setBookingOpen(true)}
+                  disabled={!isAvailable || Boolean(isOwner)}
+                  text={bookButtonLabel}
+                  dotClassName="size-2.5"
+                  durationClassName="duration-300"
+                  className="h-11 w-full sm:flex-1"
                 />
-                {isFavorited
-                  ? "Saved"
-                  : favoriting
-                    ? "Saving..."
-                    : "Add to Favorites"}
-              </Button>
-            </div>
+
+                <Button
+                  type="button"
+                  size="lg"
+                  variant="outline"
+                  onClick={handleAddToFavorites}
+                  disabled={favoriting || isFavorited}
+                  className="h-11 rounded-full px-6 text-sm font-medium"
+                >
+                  <Heart
+                    className={`mr-2 size-4 ${
+                      isFavorited ? "fill-primary text-primary" : ""
+                    }`}
+                  />
+                  {isFavorited
+                    ? "Saved"
+                    : favoriting
+                      ? "Saving..."
+                      : "Add to Favorites"}
+                </Button>
+              </div>
+            ) : (
+              <div className="glass rounded-xl border border-border px-4 py-3 text-sm text-muted-foreground">
+                Only customer accounts can book or save equipment.
+              </div>
+            )}
 
             {/* Trust note */}
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
