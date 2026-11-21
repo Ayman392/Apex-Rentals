@@ -21,8 +21,10 @@ import {
   Truck,
   type LucideIcon,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 import { SectionTitle } from "@/components/ui/section-title";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 /* ---------- Data ---------- */
 
@@ -33,6 +35,7 @@ type Category = {
   tagline: string;
   icon: LucideIcon;
   wash: string;
+  image: string;
 };
 
 const CATEGORIES: Category[] = [
@@ -41,36 +44,48 @@ const CATEGORIES: Category[] = [
     tagline: "Excavators, loaders, tools",
     icon: HardHat,
     wash: "#7a4a22",
+    image:
+      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=80",
   },
   {
     name: "Photography Equipment",
     tagline: "Cameras, drones, lighting",
     icon: Camera,
     wash: "#2a3a73",
+    image:
+      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=80",
   },
   {
     name: "Vehicles & Transportation",
     tagline: "Vans, pickups, trucks",
     icon: Truck,
     wash: "#2f4a7a",
+    image:
+      "https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=900&q=80",
   },
   {
     name: "Agriculture Equipment",
     tagline: "Tractors, harvesters, sprayers",
     icon: Tractor,
     wash: "#2d6b4a",
+    image:
+      "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=900&q=80",
   },
   {
     name: "Electronics",
     tagline: "Laptops, projectors, displays",
     icon: Laptop,
     wash: "#1f6b73",
+    image:
+      "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=80",
   },
   {
     name: "Event Equipment",
     tagline: "Sound, lighting, tents",
     icon: PartyPopper,
     wash: "#7a2f66",
+    image:
+      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80",
   },
 ];
 
@@ -91,38 +106,50 @@ const snappySpring: Transition = {
   mass: 1,
 };
 
-const fastFade: Transition = { duration: 0.1, ease: "linear" };
+const fastFade: Transition = { duration: 0.12, ease: "linear" };
 
-/* ---------- Tile (photo, or icon on a tinted gradient) ---------- */
+/* ---------- Tile ---------- */
 
-function Tile({ category, image }: { category: Category; image?: string }) {
+function Tile({
+  category,
+  customImage,
+}: {
+  category: Category;
+  customImage?: string;
+}) {
   const [failed, setFailed] = useState(false);
   const Icon = category.icon;
+  const resolvedSrc = customImage || category.image;
 
-  if (image && !failed) {
+  if (failed || !resolvedSrc) {
     return (
-      <motion.img
-        layout
-        transition={snappySpring}
-        src={image}
-        alt={category.name}
-        onError={() => setFailed(true)}
-        className="block h-full w-full object-cover"
-      />
+      <div
+        style={{
+          backgroundImage: `linear-gradient(155deg, ${category.wash}, #141b2d 85%)`,
+        }}
+        className="grid h-full w-full place-items-center"
+      >
+        <Icon aria-hidden strokeWidth={1.5} className="size-1/2 text-white/90" />
+      </div>
     );
   }
 
   return (
-    <motion.div
-      layout
-      transition={snappySpring}
-      style={{
-        backgroundImage: `linear-gradient(155deg, ${category.wash}, #141b2d 85%)`,
-      }}
-      className="grid h-full w-full place-items-center"
-    >
-      <Icon aria-hidden strokeWidth={1.5} className="size-1/2 text-white/90" />
-    </motion.div>
+    <div className="relative h-full w-full overflow-hidden">
+      <Image
+        width={900}
+        height={900}
+        src={resolvedSrc}
+        alt={category.name}
+        loading="lazy"
+        onError={() => setFailed(true)}
+        className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-105"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent"
+      />
+    </div>
   );
 }
 
@@ -169,8 +196,6 @@ function Tab({
 
 /* ---------- Section ---------- */
 
-// `images` is optional: map a category name to a photo URL.
-// Without it, each tile shows its icon on a tinted gradient.
 export function Categories({
   images = {},
 }: {
@@ -182,7 +207,7 @@ export function Categories({
   return (
     <section className="relative w-full overflow-hidden">
       <div className="mx-auto w-full max-w-6xl px-6 py-10 sm:px-10">
-        {/* Header: same style as the Featured section */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -244,11 +269,11 @@ export function Categories({
                     layout
                     transition={snappySpring}
                     className={cn(
-                      "relative flex items-center",
+                      "group/card relative flex items-center",
                       view === "list" && "w-full flex-row gap-4",
                       view === "card" && "w-full flex-col items-start gap-3",
                       view === "pack" &&
-                        "absolute h-40 w-40 justify-center",
+                        "absolute h-44 w-44 justify-center sm:h-48 sm:w-48",
                     )}
                     style={{
                       zIndex:
@@ -260,7 +285,7 @@ export function Categories({
                       view === "pack"
                         ? {
                             rotate: offset * 6,
-                            x: offset * 30,
+                            x: offset * 32,
                             y: Math.abs(offset) * 6,
                           }
                         : { rotate: 0, x: 0, y: 0 }
@@ -271,7 +296,7 @@ export function Categories({
                       layout
                       transition={snappySpring}
                       className={cn(
-                        "relative shrink-0 overflow-hidden bg-background",
+                        "relative shrink-0 overflow-hidden bg-muted",
                         view === "list" &&
                           "h-16 w-16 rounded-2xl border border-border/50",
                         view === "card" &&
@@ -280,18 +305,33 @@ export function Categories({
                           "h-full w-full rounded-[2rem] border border-border/50 shadow-xl",
                       )}
                     >
-                      <Tile category={category} image={images[category.name]} />
+                      <Tile
+                        category={category}
+                        customImage={images[category.name]}
+                      />
                     </motion.div>
 
-                    {/* Name, tagline and orange arrow (hidden in stack view) */}
+                    {/* Name, tagline and arrow (hidden in stack view) */}
                     <AnimatePresence mode="popLayout" initial={false}>
                       {view !== "pack" && (
                         <motion.div
                           key={`${category.name}-info`}
                           layout
-                          initial={{ opacity: 0, scale: 0.9, filter: "blur(4px)" }}
-                          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                          exit={{ opacity: 0, scale: 0.9, filter: "blur(4px)" }}
+                          initial={{
+                            opacity: 0,
+                            scale: 0.9,
+                            filter: "blur(4px)",
+                          }}
+                          animate={{
+                            opacity: 1,
+                            scale: 1,
+                            filter: "blur(0px)",
+                          }}
+                          exit={{
+                            opacity: 0,
+                            scale: 0.9,
+                            filter: "blur(4px)",
+                          }}
                           transition={fastFade}
                           className={cn(
                             "flex min-w-0 flex-1 items-center justify-between gap-2",
@@ -331,7 +371,7 @@ export function Categories({
               })}
             </motion.div>
 
-            {/* Stack view: one orange button for all equipment */}
+            {/* Stack view: button for all equipment */}
             <AnimatePresence>
               {view === "pack" && (
                 <motion.div
@@ -340,14 +380,15 @@ export function Categories({
                   animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                   exit={{ opacity: 0, y: 5, filter: "blur(5px)" }}
                   transition={{ duration: 0.3, delay: 0.1 }}
-                  className="relative z-0 mt-6 flex justify-center"
+                  className="relative z-0 mt-8 flex justify-center"
                 >
-                  <Link
-                    href="/equipment"
-                    className="group inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground shadow-[0_10px_30px_-10px_rgb(255_90_78/0.55)] transition duration-300 hover:bg-primary/90"
-                  >
-                    Browse all equipment
-                    <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                  <Link href="/equipment" className="inline-block w-fit">
+                    <InteractiveHoverButton
+                      text="Browse all equipment"
+                      dotClassName="size-2.5"
+                      durationClassName="duration-300"
+                      className="h-12 w-56"
+                    />
                   </Link>
                 </motion.div>
               )}
