@@ -84,7 +84,8 @@ function CardPhoto({
 }
 
 export function FeaturedEquipment({ items }: { items: Equipment[] }) {
-  const list = items.slice(0, 6);
+  const safeItems = Array.isArray(items) ? items : [];
+  const list = safeItems.slice(0, 6);
   const [step, setStep] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -109,7 +110,41 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
     if (diff > 0) setStep((s) => s + diff);
   };
 
-  if (len === 0) return null;
+  if (len === 0) {
+    return (
+      <section className="relative w-full overflow-hidden">
+        <div className="mx-auto w-full max-w-6xl px-6 py-10 sm:px-10">
+          <div className="flex flex-col gap-6 border-b border-border pb-8 md:flex-row md:items-end md:justify-between">
+            <SectionTitle text="Featured Equipment" />
+            <p className="max-w-xs text-lg font-medium leading-snug tracking-tight md:text-right">
+              <span className="text-foreground">Equipment ready to rent</span>{" "}
+              <span className="text-muted-foreground">
+                from verified owners near you.
+              </span>
+            </p>
+          </div>
+
+          <div className="glass mt-10 flex flex-col items-center justify-center rounded-[2rem] border border-border px-6 py-14 text-center">
+            <p className="font-heading text-lg font-semibold text-foreground">
+              Featured equipment is temporarily unavailable
+            </p>
+            <p className="mt-1.5 max-w-md text-sm text-muted-foreground">
+              We could not load featured items right now. You can still browse
+              all available equipment.
+            </p>
+            <Link href="/equipment" className="mt-6 inline-block w-fit">
+              <InteractiveHoverButton
+                text="View all equipment"
+                dotClassName="size-2.5"
+                durationClassName="duration-300"
+                className="h-11 w-52"
+              />
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   const activeItem = list[currentIndex];
 
