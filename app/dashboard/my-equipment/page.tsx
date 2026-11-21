@@ -20,9 +20,14 @@ import { cn } from "@/lib/utils";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
+const CONDITIONS = ["New", "Like New", "Good", "Fair"];
+
 type EquipmentItem = {
   _id: string;
   name: string;
+  brand?: string;
+  model?: string;
+  condition?: string;
   category?: string;
   location?: string;
   rentalType?: string;
@@ -30,6 +35,8 @@ type EquipmentItem = {
   totalQuantity?: number;
   availableQuantity?: number;
   image?: string;
+  termsAndConditions?: string;
+  rentalTerms?: string;
   description?: string;
   status?: string;
 };
@@ -51,12 +58,16 @@ export default function MyEquipmentPage() {
 
   const [editForm, setEditForm] = useState({
     name: "",
+    brand: "",
+    model: "",
+    condition: "Good",
     category: "",
     location: "",
     rentalType: "Daily",
     price: "",
     availableQuantity: "",
     image: "",
+    termsAndConditions: "",
     description: "",
   });
 
@@ -102,12 +113,16 @@ export default function MyEquipmentPage() {
     setEditingItem(item);
     setEditForm({
       name: item.name || "",
+      brand: item.brand || "",
+      model: item.model || "",
+      condition: item.condition || "Good",
       category: item.category || "",
       location: item.location || "",
       rentalType: item.rentalType || "Daily",
       price: String(item.price ?? ""),
       availableQuantity: String(item.availableQuantity ?? 1),
       image: item.image || "",
+      termsAndConditions: item.termsAndConditions || item.rentalTerms || "",
       description: item.description || "",
     });
   }
@@ -119,20 +134,26 @@ export default function MyEquipmentPage() {
 
     try {
       const headers = await getAuthHeaders();
+      const payload = {
+        name: editForm.name,
+        brand: editForm.brand,
+        model: editForm.model,
+        condition: editForm.condition,
+        category: editForm.category,
+        location: editForm.location,
+        rentalType: editForm.rentalType,
+        price: Number(editForm.price),
+        availableQuantity: Number(editForm.availableQuantity),
+        image: editForm.image,
+        termsAndConditions: editForm.termsAndConditions,
+        description: editForm.description,
+      };
+
       const res = await fetch(`${API_URL}/equipment/${editingItem._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", ...headers },
         credentials: "include",
-        body: JSON.stringify({
-          name: editForm.name,
-          category: editForm.category,
-          location: editForm.location,
-          rentalType: editForm.rentalType,
-          price: Number(editForm.price),
-          availableQuantity: Number(editForm.availableQuantity),
-          image: editForm.image,
-          description: editForm.description,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -146,9 +167,7 @@ export default function MyEquipmentPage() {
           row._id === editingItem._id
             ? data.equipment || {
                 ...row,
-                ...editForm,
-                price: Number(editForm.price),
-                availableQuantity: Number(editForm.availableQuantity),
+                ...payload,
               }
             : row,
         ),
@@ -297,9 +316,11 @@ export default function MyEquipmentPage() {
                               </span>
                               <ExternalLink className="size-3.5 shrink-0 opacity-60" />
                             </Link>
-                            {item.location && (
+                            {(item.brand || item.model || item.location) && (
                               <p className="text-xs text-muted-foreground">
-                                {item.location}
+                                {[item.brand, item.model]
+                                  .filter(Boolean)
+                                  .join(" · ") || item.location}
                               </p>
                             )}
                           </div>
@@ -331,7 +352,7 @@ export default function MyEquipmentPage() {
 
                       <td className="whitespace-nowrap px-4 py-4 text-center">
                         <span className="inline-flex rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium capitalize text-muted-foreground">
-                          {item.status || "approved"}
+                          {item.status || "pending"}
                         </span>
                       </td>
 
@@ -383,7 +404,7 @@ export default function MyEquipmentPage() {
 
       {editingItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-          <div className="glass w-full max-w-lg rounded-2xl border border-border p-6">
+          <div className="glass max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-border p-6">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-foreground">
                 Edit Equipment
@@ -410,6 +431,55 @@ export default function MyEquipmentPage() {
                   }
                   className="w-full rounded-xl border border-border bg-muted/40 px-3.5 py-2 text-foreground focus:outline-none"
                 />
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                    Brand
+                  </label>
+                  <input
+                    value={editForm.brand}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, brand: e.target.value })
+                    }
+                    className="w-full rounded-xl border border-border bg-muted/40 px-3.5 py-2 text-foreground focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                    Model
+                  </label>
+                  <input
+                    value={editForm.model}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, model: e.target.value })
+                    }
+                    className="w-full rounded-xl border border-border bg-muted/40 px-3.5 py-2 text-foreground focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                    Condition
+                  </label>
+                  <select
+                    value={editForm.condition}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, condition: e.target.value })
+                    }
+                    className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2 text-foreground focus:outline-none"
+                  >
+                    {CONDITIONS.map((cond) => (
+                      <option
+                        key={cond}
+                        value={cond}
+                        className="bg-popover text-popover-foreground dark:bg-[#111827] dark:text-slate-100"
+                      >
+                        {cond}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -501,6 +571,23 @@ export default function MyEquipmentPage() {
                   value={editForm.image}
                   onChange={(e) =>
                     setEditForm({ ...editForm, image: e.target.value })
+                  }
+                  className="w-full rounded-xl border border-border bg-muted/40 px-3.5 py-2 text-foreground focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                  Rental Terms and Conditions
+                </label>
+                <textarea
+                  rows={3}
+                  value={editForm.termsAndConditions}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      termsAndConditions: e.target.value,
+                    })
                   }
                   className="w-full rounded-xl border border-border bg-muted/40 px-3.5 py-2 text-foreground focus:outline-none"
                 />

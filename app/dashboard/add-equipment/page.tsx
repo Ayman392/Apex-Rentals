@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, PlusCircle } from "lucide-react";
+import { ArrowLeft, PlusCircle, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { buttonVariants } from "@/components/ui/button";
 import { IOSSpinner } from "@/components/ui/ios-spinner";
 import { useSession } from "@/lib/auth-client";
+import { uploadToImgbb } from "@/lib/imgbb";
 import { cn } from "@/lib/utils";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -22,6 +24,8 @@ const CATEGORIES = [
   "Tools & Workshop",
 ];
 
+const CONDITIONS = ["New", "Like New", "Good", "Fair"];
+
 async function getAuthHeaders(): Promise<HeadersInit> {
   const res = await fetch("/api/auth/token", { credentials: "include" });
   if (!res.ok) return {};
@@ -33,9 +37,13 @@ export default function AddEquipmentPage() {
   const router = useRouter();
   const { isPending } = useSession();
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
+    brand: "",
+    model: "",
+    condition: "Good",
     category: CATEGORIES[0],
     location: "",
     rentalType: "Daily",
@@ -43,11 +51,36 @@ export default function AddEquipmentPage() {
     totalQuantity: "1",
     availableQuantity: "1",
     image: "",
+    termsAndConditions: "",
     description: "",
   });
 
+  async function handleImageFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+      const url = await uploadToImgbb(file);
+      setForm((prev) => ({ ...prev, image: url }));
+      toast.success("Image uploaded to imgbb.");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to upload image.",
+      );
+    } finally {
+      setUploadingImage(false);
+      e.target.value = "";
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (uploadingImage) {
+      toast.error("Please wait for the image upload to finish.");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -64,6 +97,9 @@ export default function AddEquipmentPage() {
         credentials: "include",
         body: JSON.stringify({
           name: form.name,
+          brand: form.brand,
+          model: form.model,
+          condition: form.condition,
           category: form.category,
           location: form.location,
           rentalType: form.rentalType,
@@ -71,6 +107,7 @@ export default function AddEquipmentPage() {
           totalQuantity: totalQty,
           availableQuantity: availQty,
           image: form.image,
+          termsAndConditions: form.termsAndConditions,
           description: form.description,
         }),
       });
@@ -80,7 +117,7 @@ export default function AddEquipmentPage() {
         throw new Error(data.message || "Failed to publish equipment");
       }
 
-      toast.success("Equipment listed successfully.");
+      toast.success("Equipment submitted for approval (Pending).");
       router.push("/dashboard/my-equipment");
     } catch (err) {
       toast.error(
@@ -107,7 +144,7 @@ export default function AddEquipmentPage() {
             Add Equipment
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Publish a new rental listing to the Apex Rentals marketplace.
+            Submit a new rental listing for admin approval (starts as Pending).
           </p>
         </div>
 
@@ -143,6 +180,32 @@ export default function AddEquipmentPage() {
 
           <div>
             <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+              Brand *
+            </label>
+            <input
+              required
+              placeholder="e.g. Sony"
+              value={form.brand}
+              onChange={(e) => setForm({ ...form, brand: e.target.value })}
+              className="w-full rounded-xl border border-border bg-muted/40 px-4 py-2.5 text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+              Model *
+            </label>
+            <input
+              required
+              placeholder="e.g. ILME-FX6"
+              value={form.model}
+              onChange={(e) => setForm({ ...form, model: e.target.value })}
+              className="w-full rounded-xl border border-border bg-muted/40 px-4 py-2.5 text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
               Category *
             </label>
             <select
@@ -163,6 +226,27 @@ export default function AddEquipmentPage() {
           </div>
 
           <div>
+            <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+              Equipment Condition *
+            </label>
+            <select
+              value={form.condition}
+              onChange={(e) => setForm({ ...form, condition: e.target.value })}
+              className="w-full rounded-xl border border-border bg-muted/40 px-4 py-2.5 text-foreground focus:border-primary focus:outline-none"
+            >
+              {CONDITIONS.map((cond) => (
+                <option
+                  key={cond}
+                  value={cond}
+                  className="bg-popover text-popover-foreground dark:bg-[#111827] dark:text-slate-100"
+                >
+                  {cond}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="sm:col-span-2">
             <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
               Pickup / Storage Location *
             </label>
@@ -260,17 +344,50 @@ export default function AddEquipmentPage() {
           </div>
         </div>
 
-        <div>
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-            Cover Image URL
+        {/* Image Upload via imgbb */}
+        <div className="space-y-2.5">
+          <label className="block text-xs font-medium text-muted-foreground">
+            Equipment Image (Upload via imgbb) *
           </label>
-          <input
-            type="url"
-            placeholder="https://images.unsplash.com/..."
-            value={form.image}
-            onChange={(e) => setForm({ ...form, image: e.target.value })}
-            className="w-full rounded-xl border border-border bg-muted/40 px-4 py-2.5 text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none"
-          />
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/40 px-4 py-3 text-xs font-medium text-foreground transition hover:border-primary">
+              <Upload className="size-4 text-primary" />
+              <span>
+                {uploadingImage ? "Uploading to imgbb..." : "Choose Image File"}
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                disabled={uploadingImage}
+                onChange={handleImageFileChange}
+                className="hidden"
+              />
+            </label>
+
+            {uploadingImage && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <IOSSpinner size={16} />
+                Uploading image...
+              </div>
+            )}
+          </div>
+
+          {form.image && (
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/30 p-2.5">
+              <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-muted">
+                <Image
+                  src={form.image}
+                  alt="Uploaded equipment preview"
+                  fill
+                  unoptimized
+                  className="object-cover"
+                />
+              </div>
+              <span className="truncate text-xs text-muted-foreground">
+                {form.image}
+              </span>
+            </div>
+          )}
         </div>
 
         <div>
@@ -278,10 +395,25 @@ export default function AddEquipmentPage() {
             Description & Included Accessories
           </label>
           <textarea
-            rows={4}
-            placeholder="Describe condition, key specifications, included batteries/cables, and pickup notes..."
+            rows={3}
+            placeholder="Describe key specifications, included batteries/cables, and pickup notes..."
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
+            className="w-full rounded-xl border border-border bg-muted/40 px-4 py-2.5 text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+            Rental Terms and Conditions
+          </label>
+          <textarea
+            rows={3}
+            placeholder="Specify return conditions, security/damage rules, and late return terms..."
+            value={form.termsAndConditions}
+            onChange={(e) =>
+              setForm({ ...form, termsAndConditions: e.target.value })
+            }
             className="w-full rounded-xl border border-border bg-muted/40 px-4 py-2.5 text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none"
           />
         </div>
@@ -289,7 +421,7 @@ export default function AddEquipmentPage() {
         <div className="flex justify-end pt-2">
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || uploadingImage}
             className={cn(
               buttonVariants(),
               "shadow-coral h-11 rounded-full px-7",
