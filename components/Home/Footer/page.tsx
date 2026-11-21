@@ -1,6 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { Mail, Phone } from "lucide-react";
+import { ArrowUp, Mail, Phone } from "lucide-react";
 
 const EXPLORE_LINKS = [
   { label: "Home", href: "/" },
@@ -73,6 +75,16 @@ function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) 
 export function Footer() {
   const year = new Date().getFullYear();
 
+  const handleBackToTop = () => {
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReduced ? "auto" : "smooth",
+    });
+  };
+
   return (
     <footer id="contact" className="px-4 pb-6 pt-24">
       <div className="glass mx-auto max-w-6xl overflow-hidden rounded-3xl">
@@ -132,55 +144,55 @@ export function Footer() {
           <FooterColumn title="Account" links={ACCOUNT_LINKS} />
         </div>
 
-        {/* Big outlined brand name, fades out toward the divider */}
-       {/* Big outlined brand name, cut off by the divider line */}
-<div aria-hidden="true" className="mt-10 select-none px-4 sm:px-10">
-  <svg
-    viewBox="0 0 1000 75"
-    className="block h-auto w-full text-foreground"
-    preserveAspectRatio="xMidYMid meet"
-  >
-    <defs>
-      <linearGradient id="wordmark-fade" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0.1" stopColor="white" stopOpacity="1" />
-        <stop offset="0.95" stopColor="white" stopOpacity="0" />
-      </linearGradient>
-      <mask
-        id="wordmark-mask"
-        maskUnits="userSpaceOnUse"
-        x="0"
-        y="0"
-        width="1000"
-        height="75"
-      >
-        <rect width="1000" height="75" fill="url(#wordmark-fade)" />
-      </mask>
-    </defs>
-    <g mask="url(#wordmark-mask)">
-      <text
-        x="500"
-        y="100"
-        textAnchor="middle"
-        textLength="990"
-        lengthAdjust="spacing"
-        fontSize="112"
-        fontWeight="600"
-        fill="none"
-        stroke="currentColor"
-        strokeOpacity={0.35}
-        strokeWidth="0.8"
-        style={{ fontFamily: "var(--font-display), sans-serif" }}
-      >
-        APEX RENTALS
-      </text>
-    </g>
-  </svg>
-</div>
+        {/* Big outlined brand name, cut off by the divider line */}
+        <div aria-hidden="true" className="mt-10 select-none px-4 sm:px-10">
+          <svg
+            viewBox="0 0 1000 75"
+            className="block h-auto w-full text-foreground"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <defs>
+              <linearGradient id="wordmark-fade" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0.1" stopColor="white" stopOpacity="1" />
+                <stop offset="0.95" stopColor="white" stopOpacity="0" />
+              </linearGradient>
+              <mask
+                id="wordmark-mask"
+                maskUnits="userSpaceOnUse"
+                x="0"
+                y="0"
+                width="1000"
+                height="75"
+              >
+                <rect width="1000" height="75" fill="url(#wordmark-fade)" />
+              </mask>
+            </defs>
+            <g mask="url(#wordmark-mask)">
+              <text
+                x="500"
+                y="100"
+                textAnchor="middle"
+                textLength="990"
+                lengthAdjust="spacing"
+                fontSize="112"
+                fontWeight="600"
+                fill="none"
+                stroke="currentColor"
+                strokeOpacity={0.35}
+                strokeWidth="0.8"
+                style={{ fontFamily: "var(--font-display), sans-serif" }}
+              >
+                APEX RENTALS
+              </text>
+            </g>
+          </svg>
+        </div>
 
         {/* Bottom bar */}
-        <div className="flex flex-col items-center justify-between gap-3 border-t border-border px-6 py-5 text-xs text-muted-foreground sm:flex-row sm:px-10">
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-border px-6 py-5 text-xs text-muted-foreground sm:flex-row sm:px-10">
           <p>© {year} Apex Rentals. All rights reserved.</p>
-          <div className="flex items-center gap-5">
+
+          <div className="flex flex-wrap items-center justify-center gap-5">
             <a
               href="mailto:support@apexrentals.com"
               className="flex items-center gap-1.5 transition-colors hover:text-foreground"
@@ -195,6 +207,16 @@ export function Footer() {
               <Phone className="size-3.5 text-coral-text" />
               +(880) 18555-88855
             </a>
+
+            <button
+              type="button"
+              onClick={handleBackToTop}
+              aria-label="Back to top"
+              className="group inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-border bg-background/60 px-3.5 py-1.5 text-xs font-medium text-foreground transition hover:border-primary/60 hover:bg-primary hover:text-primary-foreground"
+            >
+              <span>Back to top</span>
+              <ArrowUp className="size-3.5 transition-transform duration-300 group-hover:-translate-y-0.5" />
+            </button>
           </div>
         </div>
       </div>

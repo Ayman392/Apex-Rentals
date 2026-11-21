@@ -72,8 +72,8 @@
 }
 
 .dark {
-  /* dark: Ink Navy */
-  --background: #090d18;
+  /* dark: deep navy base with a centered gray spotlight */
+  --background: #020617;
   --foreground: #f4f1ea;
   --card: rgb(244 241 234 / 0.05);
   --card-foreground: #f4f1ea;
@@ -122,11 +122,13 @@
   --glass-accent-bg: linear-gradient(135deg, rgb(255 90 78 / 0.2), rgb(255 90 78 / 0.04));
   --glass-accent-border: rgb(255 90 78 / 0.4);
 
-  --backdrop:
-    radial-gradient(52rem 34rem at 88% 110%, rgb(255 90 78 / 0.42), transparent 62%),
-    radial-gradient(60rem 40rem at 0% -10%, rgb(20 27 45 / 1), transparent 70%),
-    radial-gradient(44rem 30rem at 60% 45%, rgb(20 27 45 / 0.55), transparent 70%);
-  --stars-opacity: 0.55;
+  /* centered spotlight: #3e3e3e at the glow center fading to the base color */
+  --backdrop: radial-gradient(
+    circle clamp(22rem, 26vw, 34rem) at 50% 22%,
+    #3e3e3e 0%,
+    #020617 100%
+  );
+  --stars-opacity: 0;
   --grain-opacity: 0.07;
 }
 
