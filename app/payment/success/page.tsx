@@ -10,6 +10,13 @@ import { cn } from "@/lib/utils";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
+async function getAuthHeaders(): Promise<HeadersInit> {
+  const res = await fetch("/api/auth/token", { credentials: "include" });
+  if (!res.ok) return {};
+  const data = await res.json();
+  return data?.token ? { Authorization: `Bearer ${data.token}` } : {};
+}
+
 type PaymentSummary = {
   equipmentName?: string;
   amount?: number;
@@ -33,9 +40,10 @@ function PaymentSuccessContent() {
 
     async function confirm() {
       try {
+        const headers = await getAuthHeaders();
         const res = await fetch(`${API_BASE}/payments/confirm`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...headers },
           credentials: "include",
           body: JSON.stringify({ sessionId }),
         });
