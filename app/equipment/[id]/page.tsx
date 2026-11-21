@@ -12,6 +12,7 @@ import {
   Calendar,
   CheckCircle2,
   CreditCard,
+  FileText,
   Heart,
   Layers,
   MapPin,
@@ -47,6 +48,8 @@ type EquipmentDetail = {
   location: string;
   availableQuantity: number;
   description?: string;
+  termsAndConditions?: string;
+  rentalTerms?: string;
   image?: string;
   imageUrl?: string;
   ownerName?: string;
@@ -62,6 +65,45 @@ function durationUnit(rentalType: string, count: number) {
         ? "month"
         : "day";
   return count === 1 ? base : `${base}s`;
+}
+
+function addRentalDuration(
+  startDateStr: string,
+  rentalType: string,
+  durationCount: number,
+): string {
+  const [y, m, d] = startDateStr.split("-").map(Number);
+  if (!y || !m || !d) return startDateStr;
+
+  const date = new Date(Date.UTC(y, m - 1, d));
+  if (rentalType === "Weekly") {
+    date.setUTCDate(date.getUTCDate() + durationCount * 7);
+  } else if (rentalType === "Monthly") {
+    date.setUTCMonth(date.getUTCMonth() + durationCount);
+  } else {
+    date.setUTCDate(date.getUTCDate() + durationCount);
+  }
+
+  return date.toISOString().split("T")[0];
+}
+
+function calcDurationFromDates(
+  startStr: string,
+  endStr: string,
+  rentalType: string,
+): number {
+  const start = new Date(`${startStr}T00:00:00Z`).getTime();
+  const end = new Date(`${endStr}T00:00:00Z`).getTime();
+  if (Number.isNaN(start) || Number.isNaN(end) || end <= start) return 1;
+
+  const diffDays = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
+  if (rentalType === "Weekly") {
+    return Math.max(1, Math.ceil(diffDays / 7));
+  }
+  if (rentalType === "Monthly") {
+    return Math.max(1, Math.ceil(diffDays / 30));
+  }
+  return diffDays;
 }
 
 export default function EquipmentDetailsPage() {
@@ -91,8 +133,14 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
   // Booking modal state
   const todayStr = new Date().toISOString().split("T")[0];
   const [startDate, setStartDate] = useState(todayStr);
+  const [endDate, setEndDate] = useState(() =>
+    addRentalDuration(todayStr, "Daily", 1),
+  );
   const [duration, setDuration] = useState(1);
   const [quantity, setQuantity] = useState(1);
+  const [contactNumber, setContactNumber] = useState("");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [additionalNotes, setAdditionalNotes] = useState("");
   const [bookingLoading, setBookingLoading] = useState(false);
 
   const isSlugLoaded = fetchedSlug === rawSlug;
@@ -138,6 +186,11 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
         setItem(data);
         setImgFailed(false);
         setError(null);
+        setEndDate((prevEnd) =>
+          prevEnd && prevEnd >= todayStr
+            ? prevEnd
+            : addRentalDuration(todayStr, data.rentalType, 1),
+        );
 
         // Normalize /equipment/<id> or /equipment/<slug>-<id> to clean /equipment/<slug>
         const canonicalPath = buildEquipmentUrl(data);
@@ -160,7 +213,31 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
 
     loadEquipment();
     return () => controller.abort();
-  }, [parsedParam.id, parsedParam.slug, isPending, user, rawSlug, router]);
+  }, [parsedParam.id, parsedParam.slug, isPending, user, rawSlug, router, todayStr]);
+
+  function handleStartDateChange(nextStart: string) {
+    setStartDate(nextStart);
+    const rentalType = item?.rentalType || "Daily";
+    if (!endDate || endDate < nextStart) {
+      const nextEnd = addRentalDuration(nextStart, rentalType, duration);
+      setEndDate(nextEnd);
+    } else {
+      setDuration(calcDurationFromDates(nextStart, endDate, rentalType));
+    }
+  }
+
+  function handleEndDateChange(nextEnd: string) {
+    setEndDate(nextEnd);
+    const rentalType = item?.rentalType || "Daily";
+    setDuration(calcDurationFromDates(startDate, nextEnd, rentalType));
+  }
+
+  function handleDurationChange(nextDuration: number) {
+    const safeDuration = Math.max(1, nextDuration);
+    setDuration(safeDuration);
+    const rentalType = item?.rentalType || "Daily";
+    setEndDate(addRentalDuration(startDate, rentalType, safeDuration));
+  }
 
   async function handleAddToFavorites() {
     if (!item || !user) return;
@@ -195,6 +272,22 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
   async function handleProceedToPayment() {
     if (!item || !user) return;
 
+    if (!startDate) {
+      toast.error("Please select a rental start date.");
+      return;
+    }
+    if (!endDate || endDate < startDate) {
+      toast.error("Rental end date must be on or after the start date.");
+      return;
+    }
+    if (!contactNumber.trim()) {
+      toast.error("Please enter a contact number.");
+      return;
+    }
+    if (!deliveryAddress.trim()) {
+      toast.error("Please enter a delivery address.");
+      return;
+    }
     if (quantity < 1 || quantity > item.availableQuantity) {
       toast.error(
         `Please select between 1 and ${item.availableQuantity} units.`,
@@ -220,8 +313,12 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
           price: item.price,
           rentalType: item.rentalType,
           startDate,
+          endDate,
           duration,
           quantity,
+          contactNumber: contactNumber.trim(),
+          deliveryAddress: deliveryAddress.trim(),
+          additionalNotes: additionalNotes.trim(),
           totalPrice,
           customerEmail: user.email,
           customerName: user.name,
@@ -286,6 +383,10 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
   const isAvailable = item.availableQuantity > 0;
   const isOwner = user?.email && item.ownerEmail === user.email;
   const totalCost = item.price * duration * quantity;
+  const termsText =
+    item.termsAndConditions ||
+    item.rentalTerms ||
+    "Equipment must be returned in the same working condition as delivered. Renter is responsible for safe operation during the rental window, and any damage or late return may incur additional charges.";
 
   return (
     <section className="min-h-screen pt-28 pb-20">
@@ -411,6 +512,17 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
               </p>
             </div>
 
+            {/* Rental Terms and Conditions */}
+            <div className="glass space-y-2 rounded-xl p-4">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <FileText className="size-3.5 text-coral-text" />
+                Rental Terms and Conditions
+              </div>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {termsText}
+              </p>
+            </div>
+
             {/* Owner Info */}
             {(item.ownerName || item.ownerEmail) && (
               <div className="glass flex items-center gap-3 rounded-xl p-4">
@@ -443,7 +555,7 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
                 {isOwner
                   ? "Your Listing"
                   : isAvailable
-                    ? "Book Equipment"
+                    ? "Book Now"
                     : "Currently Unavailable"}
               </Button>
 
@@ -479,7 +591,7 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
 
       {/* shadcn Booking Dialog */}
       <Dialog open={bookingOpen} onOpenChange={setBookingOpen}>
-        <DialogContent className="glass-strong rounded-2xl border-border text-foreground sm:max-w-md">
+        <DialogContent className="glass-strong max-h-[90vh] overflow-y-auto rounded-2xl border-border text-foreground sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-base font-semibold">
               Book {item.name}
@@ -491,25 +603,44 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
           </DialogHeader>
 
           <div className="space-y-4 py-2">
-            {/* Start Date */}
-            <div className="space-y-1.5">
-              <label
-                htmlFor="start-date"
-                className="block text-xs font-medium text-foreground"
-              >
-                Start Date
-              </label>
-              <input
-                id="start-date"
-                type="date"
-                min={todayStr}
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="h-10 w-full rounded-xl border border-input bg-muted/50 px-3 text-sm text-foreground focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
+            {/* Rental Start Date & Rental End Date */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="start-date"
+                  className="block text-xs font-medium text-foreground"
+                >
+                  Rental Start Date
+                </label>
+                <input
+                  id="start-date"
+                  type="date"
+                  min={todayStr}
+                  value={startDate}
+                  onChange={(e) => handleStartDateChange(e.target.value)}
+                  className="h-10 w-full rounded-xl border border-input bg-muted/50 px-3 text-sm text-foreground focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="end-date"
+                  className="block text-xs font-medium text-foreground"
+                >
+                  Rental End Date
+                </label>
+                <input
+                  id="end-date"
+                  type="date"
+                  min={startDate || todayStr}
+                  value={endDate}
+                  onChange={(e) => handleEndDateChange(e.target.value)}
+                  className="h-10 w-full rounded-xl border border-input bg-muted/50 px-3 text-sm text-foreground focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
             </div>
 
-            {/* Duration & Quantity */}
+            {/* Duration & Required Quantity */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label
@@ -525,7 +656,7 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
                   max={90}
                   value={duration}
                   onChange={(e) =>
-                    setDuration(Math.max(1, Number(e.target.value) || 1))
+                    handleDurationChange(Math.max(1, Number(e.target.value) || 1))
                   }
                   className="h-10 w-full rounded-xl border border-input bg-muted/50 px-3 text-sm tabular-nums text-foreground focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
@@ -533,7 +664,7 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
 
               <div className="space-y-1.5">
                 <span className="block text-xs font-medium text-foreground">
-                  Quantity
+                  Required Quantity
                 </span>
                 <div className="flex h-10 items-center justify-between rounded-xl border border-input bg-muted/50 px-2">
                   <button
@@ -563,6 +694,60 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
                   </button>
                 </div>
               </div>
+            </div>
+
+            {/* Contact Number */}
+            <div className="space-y-1.5">
+              <label
+                htmlFor="contact-number"
+                className="block text-xs font-medium text-foreground"
+              >
+                Contact Number
+              </label>
+              <input
+                id="contact-number"
+                type="tel"
+                placeholder="+880 1XXX-XXXXXX"
+                value={contactNumber}
+                onChange={(e) => setContactNumber(e.target.value)}
+                className="h-10 w-full rounded-xl border border-input bg-muted/50 px-3 text-sm text-foreground focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+
+            {/* Delivery Address */}
+            <div className="space-y-1.5">
+              <label
+                htmlFor="delivery-address"
+                className="block text-xs font-medium text-foreground"
+              >
+                Delivery Address
+              </label>
+              <input
+                id="delivery-address"
+                type="text"
+                placeholder="Street address, area, city"
+                value={deliveryAddress}
+                onChange={(e) => setDeliveryAddress(e.target.value)}
+                className="h-10 w-full rounded-xl border border-input bg-muted/50 px-3 text-sm text-foreground focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+
+            {/* Additional Notes */}
+            <div className="space-y-1.5">
+              <label
+                htmlFor="additional-notes"
+                className="block text-xs font-medium text-foreground"
+              >
+                Additional Notes
+              </label>
+              <textarea
+                id="additional-notes"
+                rows={2}
+                placeholder="Any special handover or site instructions..."
+                value={additionalNotes}
+                onChange={(e) => setAdditionalNotes(e.target.value)}
+                className="w-full rounded-xl border border-input bg-muted/50 p-3 text-sm text-foreground focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
             </div>
 
             {/* Price Breakdown */}
