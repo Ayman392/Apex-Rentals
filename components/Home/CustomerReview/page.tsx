@@ -1,3 +1,7 @@
+"use client";
+
+import React from "react";
+import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { InfiniteSlider } from "@/components/ui/infinite-slider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,10 +13,9 @@ type Testimonial = {
   name: string;
   role: string;
   company?: string;
+  rating: number;
 };
 
-// Placeholder content for Apex Rentals. Add an `image` URL to show a photo;
-// without one the avatar shows the person's initial.
 const testimonials: Testimonial[] = [
   {
     quote:
@@ -20,6 +23,7 @@ const testimonials: Testimonial[] = [
     name: "Tanvir Ahmed",
     role: "Site Engineer",
     company: "Dhaka",
+    rating: 5,
   },
   {
     quote:
@@ -27,6 +31,7 @@ const testimonials: Testimonial[] = [
     name: "Nusrat Jahan",
     role: "Photographer",
     company: "Dhaka",
+    rating: 5,
   },
   {
     quote:
@@ -34,6 +39,7 @@ const testimonials: Testimonial[] = [
     name: "Rafiq Hossain",
     role: "Farm Manager",
     company: "Bogura",
+    rating: 4,
   },
   {
     quote:
@@ -41,6 +47,7 @@ const testimonials: Testimonial[] = [
     name: "Sadia Rahman",
     role: "Event Planner",
     company: "Dhaka",
+    rating: 5,
   },
   {
     quote:
@@ -48,6 +55,7 @@ const testimonials: Testimonial[] = [
     name: "Imran Khan",
     role: "Videographer",
     company: "Sylhet",
+    rating: 4,
   },
   {
     quote:
@@ -55,6 +63,7 @@ const testimonials: Testimonial[] = [
     name: "Mehnaz Chowdhury",
     role: "Contractor",
     company: "Chattogram",
+    rating: 5,
   },
   {
     quote:
@@ -62,6 +71,7 @@ const testimonials: Testimonial[] = [
     name: "Karim Uddin",
     role: "Equipment Owner",
     company: "Gazipur",
+    rating: 5,
   },
   {
     quote:
@@ -69,6 +79,7 @@ const testimonials: Testimonial[] = [
     name: "Farhana Akter",
     role: "Equipment Owner",
     company: "Khulna",
+    rating: 4,
   },
   {
     quote:
@@ -76,6 +87,7 @@ const testimonials: Testimonial[] = [
     name: "Abdul Malek",
     role: "Farmer",
     company: "Rajshahi",
+    rating: 4,
   },
 ];
 
@@ -83,27 +95,59 @@ const firstColumn = testimonials.slice(0, 3);
 const secondColumn = testimonials.slice(3, 6);
 const thirdColumn = testimonials.slice(6, 9);
 
+function RatingStars({ rating }: { rating: number }) {
+  const clamped = Math.max(1, Math.min(5, Math.round(rating)));
+
+  return (
+    <div
+      className="flex items-center gap-1"
+      aria-label={`Rated ${clamped} out of 5`}
+    >
+      {Array.from({ length: 5 }, (_, idx) => {
+        const filled = idx < clamped;
+        return (
+          <Star
+            key={idx}
+            aria-hidden="true"
+            className={cn(
+              "size-4 shrink-0",
+              filled
+                ? "fill-current text-coral-text"
+                : "text-muted-foreground/30",
+            )}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 export function CustomerReview() {
   return (
     <section className="relative py-10">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-5xl px-4">
         <div className="mx-auto flex max-w-sm flex-col items-center justify-center gap-4">
           <div className="flex justify-center">
-            <div className="rounded-lg border px-4 py-1">Customer Reviews</div>
+            <div className="glass-chip rounded-lg border px-4 py-1 text-xs font-medium">
+              Customer Reviews
+            </div>
           </div>
-          <SectionTitle text="What our renters say" className="font-bold text-3xl tracking-tighter lg:text-4xl" />
-          <p className="text-center text-muted-foreground text-sm">
+          <SectionTitle
+            text="What our renters say"
+            className="text-center text-3xl font-bold tracking-tighter lg:text-4xl"
+          />
+          <p className="text-center text-sm text-muted-foreground">
             See what our customers and owners have to say about us.
           </p>
         </div>
 
         <div
           className={cn(
-            "mt-10 flex max-h-160 justify-center gap-6 overflow-hidden",
-            "mask-[linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)]",
+            "mt-10 flex max-h-[40rem] justify-center gap-6 overflow-hidden",
+            "[mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]",
           )}
         >
-          <InfiniteSlider direction="vertical" speed={30} speedOnHover={15}>
+          <InfiniteSlider direction="vertical" gap={24}>
             {firstColumn.map((testimonial) => (
               <ReviewCard
                 key={testimonial.name}
@@ -114,8 +158,7 @@ export function CustomerReview() {
           <InfiniteSlider
             className="hidden md:block"
             direction="vertical"
-            speed={50}
-            speedOnHover={25}
+            gap={24}
           >
             {secondColumn.map((testimonial) => (
               <ReviewCard
@@ -127,8 +170,7 @@ export function CustomerReview() {
           <InfiniteSlider
             className="hidden lg:block"
             direction="vertical"
-            speed={35}
-            speedOnHover={17}
+            gap={24}
           >
             {thirdColumn.map((testimonial) => (
               <ReviewCard
@@ -150,26 +192,34 @@ function ReviewCard({
 }: React.ComponentProps<"figure"> & {
   testimonial: Testimonial;
 }) {
-  const { quote, image, name, role, company } = testimonial;
+  const { quote, image, name, role, company, rating } = testimonial;
   return (
     <figure
       className={cn(
-        "w-full max-w-xs rounded-3xl border bg-card p-8 shadow-foreground/10 shadow-lg dark:bg-card/20",
+        "glass flex h-[270px] w-full max-w-xs flex-col justify-between rounded-3xl border bg-card p-6 shadow-lg shadow-foreground/10 dark:bg-card/20",
         className,
       )}
       {...props}
     >
-      <blockquote>{quote}</blockquote>
-      <figcaption className="mt-5 flex items-center gap-2">
-        <Avatar className="size-8 rounded-full">
-          {image && <AvatarImage alt={`${name}'s profile picture`} src={image} />}
+      <div className="space-y-3">
+        <RatingStars rating={rating} />
+        <blockquote className="line-clamp-5 text-sm leading-relaxed text-foreground/90">
+          “{quote}”
+        </blockquote>
+      </div>
+
+      <figcaption className="mt-4 flex items-center gap-2.5 border-t border-border/60 pt-3.5">
+        <Avatar className="size-8 shrink-0 rounded-full">
+          {image && (
+            <AvatarImage alt={`${name}'s profile picture`} src={image} />
+          )}
           <AvatarFallback>{name.charAt(0)}</AvatarFallback>
         </Avatar>
-        <div className="flex flex-col">
-          <cite className="font-medium not-italic leading-5 tracking-tight">
+        <div className="flex min-w-0 flex-col">
+          <cite className="truncate font-medium not-italic leading-5 tracking-tight">
             {name}
           </cite>
-          <span className="text-muted-foreground text-sm leading-5 tracking-tight">
+          <span className="truncate text-xs leading-5 tracking-tight text-muted-foreground">
             {company ? `${role}, ${company}` : role}
           </span>
         </div>

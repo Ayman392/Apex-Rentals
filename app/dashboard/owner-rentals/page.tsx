@@ -37,6 +37,7 @@ type OwnerRentalRecord = {
   durationDays?: number;
   days?: number;
   rentalType?: string;
+  quantity?: number;
   totalPrice?: number;
   totalAmount?: number;
   bookingAmount?: number;
@@ -208,12 +209,13 @@ export default function BookingRequestsPage() {
       ) : (
         <div className="overflow-hidden rounded-2xl border border-border bg-muted/20">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[840px] border-collapse text-left text-sm">
+            <table className="w-full min-w-[920px] border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   <th className="px-5 py-3.5">Equipment</th>
                   <th className="px-4 py-3.5">Customer</th>
                   <th className="px-4 py-3.5">Rental Period</th>
+                  <th className="px-4 py-3.5 text-center">Quantity</th>
                   <th className="px-4 py-3.5">Total</th>
                   <th className="px-4 py-3.5 text-center">Payment</th>
                   <th className="px-5 py-3.5 text-right">Booking Status</th>
@@ -236,6 +238,7 @@ export default function BookingRequestsPage() {
                     "";
                   const startDate = item.startDate || item.rentalStartDate;
                   const endDate = computeEndDate(item, startDate);
+                  const quantity = item.quantity ?? 1;
                   const total = Number(
                     item.totalPrice ??
                       item.totalAmount ??
@@ -287,6 +290,10 @@ export default function BookingRequestsPage() {
 
                       <td className="whitespace-nowrap px-4 py-4 text-muted-foreground">
                         {formatDate(startDate)} → {formatDate(endDate)}
+                      </td>
+
+                      <td className="whitespace-nowrap px-4 py-4 text-center font-medium text-foreground">
+                        {quantity}
                       </td>
 
                       <td className="whitespace-nowrap px-4 py-4 font-semibold text-foreground">
