@@ -3,8 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { ArrowRight, ShieldCheck } from "lucide-react";
-;
+import { ShieldCheck } from "lucide-react";
+import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
+
 const IMAGES = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => `/demo/${n}.jpg`);
 
 // Camera travel in px. Perspective is 900, so END_Z must stay below it.
@@ -98,7 +99,7 @@ export function Hero() {
         inView = entry.isIntersecting;
         last = performance.now();
       },
-      { threshold: 0 }
+      { threshold: 0 },
     );
     intersectionObserver.observe(stage);
 
@@ -188,18 +189,13 @@ export function Hero() {
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link
-              href="/equipment"
-              className="shadow-coral inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
-            >
-              Browse equipment
-              <ArrowRight className="size-4" />
-            </Link>
-            <Link
-              href="/#how-it-works"
-              className="glass-chip inline-flex h-11 items-center rounded-full px-6 text-sm font-medium text-foreground transition hover:bg-foreground/5"
-            >
-              How it works
+            <Link href="/equipment" className="inline-block w-fit">
+              <InteractiveHoverButton
+                text="Browse equipment"
+                dotClassName="size-2.5"
+                durationClassName="duration-300"
+                className="h-11 w-52"
+              />
             </Link>
           </div>
         </div>

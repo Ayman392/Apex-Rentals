@@ -4,9 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, PlusCircle, Upload } from "lucide-react";
+import { ArrowLeft, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { buttonVariants } from "@/components/ui/button";
+import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 import { IOSSpinner } from "@/components/ui/ios-spinner";
 import { useSession } from "@/lib/auth-client";
 import { uploadToImgbb } from "@/lib/imgbb";
@@ -418,24 +419,14 @@ export default function AddEquipmentPage() {
           />
         </div>
 
-        <div className="flex justify-end pt-2">
-          <button
+        <div className="flex items-center justify-end gap-3 pt-2">
+          {submitting && <IOSSpinner size={18} className="text-foreground/80" />}
+          <InteractiveHoverButton
             type="submit"
             disabled={submitting || uploadingImage}
-            className={cn(
-              buttonVariants(),
-              "shadow-coral h-11 rounded-full px-7",
-            )}
-          >
-            {submitting ? (
-              <IOSSpinner size={16} />
-            ) : (
-              <>
-                <PlusCircle className="mr-1.5 size-4" />
-                Publish Equipment
-              </>
-            )}
-          </button>
+            text={submitting ? "Publishing..." : "Publish Equipment"}
+            className="h-11 w-52"
+          />
         </div>
       </form>
     </div>

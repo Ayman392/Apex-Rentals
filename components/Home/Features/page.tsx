@@ -5,7 +5,6 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
-  ArrowUpRight,
   Camera,
   Cpu,
   HardHat,
@@ -17,6 +16,7 @@ import {
 } from "lucide-react";
 import type { Equipment } from "@/lib/equipment";
 import { buildEquipmentUrl } from "@/lib/slug";
+import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 import { SectionTitle } from "@/components/ui/section-title";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -309,12 +309,13 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mt-12 flex justify-center"
         >
-          <Link
-            href="/equipment"
-            className="group inline-flex h-12 items-center gap-2 rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground shadow-[0_10px_30px_-10px_rgb(255_107_26/0.55)] transition duration-300 hover:bg-primary/90"
-          >
-            View all equipment
-            <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          <Link href="/equipment" className="inline-block w-fit">
+            <InteractiveHoverButton
+              text="View all equipment"
+              dotClassName="size-2.5"
+              durationClassName="duration-300"
+              className="h-12 w-56"
+            />
           </Link>
         </motion.div>
       </div>
