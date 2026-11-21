@@ -15,6 +15,7 @@ import {
   Truck,
 } from "lucide-react";
 import type { Equipment } from "@/lib/equipment";
+import { FALLBACK_EQUIPMENT_IMAGE } from "@/lib/constants";
 import { buildEquipmentUrl } from "@/lib/slug";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 import { SectionTitle } from "@/components/ui/section-title";
@@ -24,9 +25,6 @@ import Image from "next/image";
 const UNIT = { Daily: "day", Weekly: "week", Monthly: "month" } as const;
 const AUTO_PLAY_INTERVAL = 3400;
 const ITEM_HEIGHT = 64;
-
-const USE_DEMO_IMAGES = false;
-const DEMO_IMAGE_COUNT = 8; // public/demo/1.jpg ... 8.jpg
 
 const wrap = (min: number, max: number, v: number) => {
   const rangeSize = max - min;
@@ -59,16 +57,13 @@ function getCardStatus(index: number, currentIndex: number, total: number) {
 
 function CardPhoto({
   item,
-  index,
   isActive,
 }: {
   item: Equipment;
-  index: number;
   isActive: boolean;
 }) {
   const [failed, setFailed] = useState(false);
-  const fallbackSrc = `/demo/${(index % DEMO_IMAGE_COUNT) + 1}.jpg`;
-  const src = USE_DEMO_IMAGES || failed || !item.image ? fallbackSrc : item.image;
+  const src = failed || !item.image ? FALLBACK_EQUIPMENT_IMAGE : item.image;
 
   return (
     <Image
@@ -236,11 +231,7 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
                       }}
                       className="absolute inset-0 origin-center overflow-hidden rounded-[2rem] border-4 border-white bg-slate-100 shadow-2xl dark:border-slate-800 dark:bg-[#0b1220]"
                     >
-                      <CardPhoto
-                        item={equipment}
-                        index={index}
-                        isActive={isActive}
-                      />
+                      <CardPhoto item={equipment} isActive={isActive} />
 
                       {/* Availability / Rental Type Pill */}
                       <div

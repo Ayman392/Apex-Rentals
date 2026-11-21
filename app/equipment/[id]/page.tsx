@@ -2,6 +2,7 @@
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
+import { FALLBACK_EQUIPMENT_IMAGE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -385,7 +386,8 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
   }
 
   const rawImgSrc = item.image || item.imageUrl;
-  const imgSrc = !imgFailed && rawImgSrc ? rawImgSrc : "/demo/1.jpg";
+  const imgSrc =
+    !imgFailed && rawImgSrc ? rawImgSrc : FALLBACK_EQUIPMENT_IMAGE;
   const isAvailable = item.availableQuantity > 0;
   const isOwner = user?.email && item.ownerEmail === user.email;
   const totalCost = item.price * duration * quantity;
