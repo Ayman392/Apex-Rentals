@@ -3,8 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
+import { SectionTitle } from "@/components/ui/section-title";
 
 const IMAGES = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => `/demo/${n}.jpg`);
 
@@ -13,6 +15,9 @@ const START_Z = -2400;
 const END_Z = 500;
 const DURATION = 20000; // ms for one photo to travel the whole distance
 const DESIGN_WIDTH = 1280; // width the lane offsets below were designed for
+
+// Smooth ease-out: quick start, soft landing. No bounce.
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 // x/y: offset from the vanishing point, w/h: card size, rot: tilt, offset: start phase (0..1)
 const CARDS = [
@@ -30,6 +35,32 @@ const CARDS = [
 export function Hero() {
   const stageRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const reduceMotion = useReducedMotion();
+
+  // Text entrance: restrained, staggered, no movement for reduced-motion users
+  const container: Variants = {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
+  };
+
+  const rise: Variants = {
+    hidden: { opacity: 0, y: reduceMotion ? 0 : 14 },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: EASE },
+    },
+  };
+
+  // Headline lines slide up from behind a mask
+  const lineUp: Variants = {
+    hidden: { y: reduceMotion ? 0 : "105%", opacity: reduceMotion ? 0 : 1 },
+    show: {
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0.75, ease: EASE },
+    },
+  };
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -134,8 +165,12 @@ export function Hero() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 [mask-image:linear-gradient(to_right,transparent_20%,black_55%)] max-md:opacity-35 max-md:[mask-image:none]"
       >
-        <div
+        {/* Opacity-only fade-in so it never fights the stream's own motion */}
+        <motion.div
           ref={stageRef}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.2, delay: 0.25, ease: "easeOut" }}
           className="absolute inset-0 [perspective-origin:65%_50%] [perspective:900px]"
         >
           {CARDS.map((card, i) => (
@@ -163,32 +198,55 @@ export function Hero() {
               />
             </div>
           ))}
-        </div>
+        </motion.div>
       </div>
 
       {/* Content */}
       <div className="mx-auto w-full max-w-6xl px-6 sm:px-10">
-        <div className="max-w-xl">
-          <span className="glass-chip inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground">
+        <motion.div
+          className="max-w-xl"
+          variants={container}
+          initial="hidden"
+          animate="show"
+        >
+          <motion.span
+            variants={rise}
+            className="glass-chip inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground"
+          >
             <ShieldCheck className="size-3.5 text-coral-text" />
             Verified owners, secure payments
-          </span>
+          </motion.span>
 
           <h1
             id="hero-heading"
             className="mt-6 font-heading text-5xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl"
           >
-            Everything you need,
-            <br />
-            <span className="text-coral-text">without owning it.</span>
+            {/* Each line is masked so it slides up into place.
+                The small bottom padding keeps descenders from being clipped. */}
+            <span className="-mb-[0.12em] block overflow-hidden pb-[0.12em]">
+              <motion.span className="block" variants={lineUp}>
+                <SectionTitle className="text-5xl md:text-7xl" text="Everything you need," />
+              </motion.span>
+            </span>
+            <span className="-mb-[0.12em] block overflow-hidden pb-[0.12em]">
+              <motion.span className="block text-coral-text" variants={lineUp}>
+                without owning it.
+              </motion.span>
+            </span>
           </h1>
 
-          <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground">
+          <motion.p
+            variants={rise}
+            className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground"
+          >
             Rent cameras, excavators, drones, tractors and event gear from
             trusted owners. Pick your dates, book in minutes and pay securely.
-          </p>
+          </motion.p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+          <motion.div
+            variants={rise}
+            className="mt-8 flex flex-wrap items-center gap-3"
+          >
             <Link href="/equipment" className="inline-block w-fit">
               <InteractiveHoverButton
                 text="Browse equipment"
@@ -197,8 +255,8 @@ export function Hero() {
                 className="h-11 w-52"
               />
             </Link>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );

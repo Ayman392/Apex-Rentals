@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, buttonVariants } from "@/components/ui/button";
+import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -9,9 +10,7 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   ArrowLeft,
-  Calendar,
   CheckCircle2,
-  CreditCard,
   FileText,
   Heart,
   Layers,
@@ -395,6 +394,12 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
     item.rentalTerms ||
     "Equipment must be returned in the same working condition as delivered. Renter is responsible for safe operation during the rental window, and any damage or late return may incur additional charges.";
 
+  const bookButtonLabel = isOwner
+    ? "Your Listing"
+    : isAvailable
+      ? "Book Now"
+      : "Unavailable";
+
   return (
     <section className="min-h-screen pt-28 pb-20">
       <div className="mx-auto max-w-6xl px-6 md:px-10">
@@ -551,20 +556,15 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-3 pt-2 sm:flex-row">
-              <Button
+              <InteractiveHoverButton
                 type="button"
-                size="lg"
                 onClick={() => setBookingOpen(true)}
                 disabled={!isAvailable || Boolean(isOwner)}
-                className="shadow-coral h-11 rounded-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90 sm:flex-1"
-              >
-                <Calendar className="mr-2 size-4" />
-                {isOwner
-                  ? "Your Listing"
-                  : isAvailable
-                    ? "Book Now"
-                    : "Currently Unavailable"}
-              </Button>
+                text={bookButtonLabel}
+                dotClassName="size-2.5"
+                durationClassName="duration-300"
+                className="h-11 w-full sm:flex-1"
+              />
 
               <Button
                 type="button"
@@ -786,17 +786,15 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
             >
               Cancel
             </Button>
-            <Button
+            <InteractiveHoverButton
               type="button"
               onClick={handleProceedToPayment}
               disabled={bookingLoading}
-              className="shadow-coral rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              <CreditCard className="mr-2 size-4" />
-              {bookingLoading
-                ? "Redirecting..."
-                : `Pay $${totalCost} with Stripe`}
-            </Button>
+              text={bookingLoading ? "Redirecting..." : `Pay $${totalCost}`}
+              dotClassName="size-2.5"
+              durationClassName="duration-300"
+              className="h-11 w-48"
+            />
           </DialogFooter>
         </DialogContent>
       </Dialog>

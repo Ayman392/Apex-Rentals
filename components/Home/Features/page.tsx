@@ -129,7 +129,7 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
           transition={{ duration: 0.5 }}
           className="flex flex-col gap-6 border-b border-border pb-8 md:flex-row md:items-end md:justify-between"
         >
-          <SectionTitle text="Features" />
+          <SectionTitle text="Featured Equipment" />
           <p className="max-w-xs text-lg font-medium leading-snug tracking-tight md:text-right">
             <span className="text-foreground">Equipment ready to rent</span>{" "}
             <span className="text-muted-foreground">
@@ -138,13 +138,13 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
           </p>
         </motion.div>
 
-        {/* Split Feature Carousel (Light & Dark Mode) */}
-        <div className="mt-10 overflow-hidden rounded-[2rem] border border-border bg-card shadow-xl lg:rounded-[3rem]">
+        {/* Split Feature Carousel (Light Mode: crisp light surfaces | Dark Mode: deep navy) */}
+        <div className="mt-10 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-[#0b1220] dark:shadow-2xl lg:rounded-[3rem]">
           <div className="flex min-h-[560px] flex-col lg:h-[580px] lg:flex-row">
             {/* Left Rail */}
-            <div className="relative z-30 flex min-h-[320px] w-full flex-col items-start justify-center overflow-hidden bg-primary px-6 text-primary-foreground sm:px-10 lg:h-full lg:w-[42%] lg:px-12">
-              <div className="pointer-events-none absolute inset-x-0 top-0 z-40 h-14 bg-gradient-to-b from-primary via-primary/80 to-transparent" />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 h-14 bg-gradient-to-t from-primary via-primary/80 to-transparent" />
+            <div className="relative z-30 flex min-h-[320px] w-full flex-col items-start justify-center overflow-hidden bg-slate-50 px-6 text-slate-900 dark:bg-[#0b1220] dark:text-slate-100 sm:px-10 lg:h-full lg:w-[42%] lg:px-12">
+              <div className="pointer-events-none absolute inset-x-0 top-0 z-40 h-14 bg-gradient-to-b from-slate-50 via-slate-50/85 to-transparent dark:from-[#0b1220] dark:via-[#0b1220]/85" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 h-14 bg-gradient-to-t from-slate-50 via-slate-50/85 to-transparent dark:from-[#0b1220] dark:via-[#0b1220]/85" />
 
               <div className="relative z-20 flex h-full w-full items-center justify-center lg:justify-start">
                 {list.map((equipment, index) => {
@@ -161,8 +161,8 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
                       animate={{
                         y: wrappedDistance * ITEM_HEIGHT,
                         opacity: Math.max(
-                          0.25,
-                          1 - Math.abs(wrappedDistance) * 0.25,
+                          0.28,
+                          1 - Math.abs(wrappedDistance) * 0.22,
                         ),
                       }}
                       transition={{
@@ -181,19 +181,19 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
                         className={cn(
                           "group relative flex max-w-[20rem] items-center gap-3 rounded-full border px-5 py-3 text-left transition-all duration-500 sm:max-w-[22rem] sm:px-6",
                           isActive
-                            ? "z-10 border-background bg-background text-primary shadow-lg"
-                            : "border-primary-foreground/25 bg-transparent text-primary-foreground/70 hover:border-primary-foreground/50 hover:text-primary-foreground",
+                            ? "z-10 border-slate-900 bg-slate-900 text-white shadow-md dark:border-white dark:bg-white dark:text-[#0b1220] dark:shadow-lg"
+                            : "border-slate-300/90 bg-white/80 text-slate-600 hover:border-slate-400 hover:text-slate-900 dark:border-slate-700/80 dark:bg-[#10192b]/60 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:text-white",
                         )}
                       >
                         <Icon
                           className={cn(
                             "size-4 shrink-0 transition-colors duration-300",
                             isActive
-                              ? "text-primary"
-                              : "text-primary-foreground/60 group-hover:text-primary-foreground",
+                              ? "text-white dark:text-[#0b1220]"
+                              : "text-slate-500 group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-white",
                           )}
                         />
-                        <span className="truncate text-xs font-medium uppercase tracking-wider sm:text-sm">
+                        <span className="truncate text-xs font-semibold uppercase tracking-wider sm:text-sm">
                           {equipment.name}
                         </span>
                       </button>
@@ -207,7 +207,7 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
             <div
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
-              className="relative flex min-h-[480px] flex-1 items-center justify-center overflow-hidden border-t border-border bg-muted/40 px-6 py-12 dark:bg-muted/20 lg:h-full lg:border-l lg:border-t-0 lg:px-10"
+              className="relative flex min-h-[480px] flex-1 items-center justify-center overflow-hidden border-t border-slate-200 bg-slate-100/80 px-6 py-12 dark:border-slate-800 dark:bg-[#0f172a] lg:h-full lg:border-l lg:border-t-0 lg:px-10"
             >
               <div className="relative flex aspect-[4/5] w-full max-w-[390px] items-center justify-center">
                 {list.map((equipment, index) => {
@@ -234,7 +234,7 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
                         damping: 25,
                         mass: 0.8,
                       }}
-                      className="absolute inset-0 origin-center overflow-hidden rounded-[2rem] border-4 border-background bg-card shadow-2xl"
+                      className="absolute inset-0 origin-center overflow-hidden rounded-[2rem] border-4 border-white bg-slate-100 shadow-2xl dark:border-slate-800 dark:bg-[#0b1220]"
                     >
                       <CardPhoto
                         item={equipment}
@@ -245,12 +245,12 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
                       {/* Availability / Rental Type Pill */}
                       <div
                         className={cn(
-                          "absolute left-5 top-5 z-10 flex items-center gap-2 rounded-full bg-black/55 px-3 py-1 backdrop-blur-md transition-opacity duration-300",
+                          "absolute left-5 top-5 z-10 flex items-center gap-2 rounded-full bg-slate-900/75 px-3 py-1 backdrop-blur-md transition-opacity duration-300 dark:bg-[#0b1220]/80",
                           isActive ? "opacity-100" : "opacity-0",
                         )}
                       >
                         <span className="size-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)]" />
-                        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/90">
+                        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white">
                           {equipment.rentalType}
                         </span>
                       </div>
@@ -263,9 +263,9 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 10 }}
                             transition={{ duration: 0.25 }}
-                            className="absolute inset-x-0 bottom-0 z-10 flex flex-col justify-end bg-gradient-to-t from-black/90 via-black/55 to-transparent p-6 pt-24 text-white"
+                            className="absolute inset-x-0 bottom-0 z-10 flex flex-col justify-end bg-gradient-to-t from-slate-950/90 via-slate-950/60 to-transparent p-6 pt-24 text-white dark:from-[#0b1220]/95 dark:via-[#0b1220]/70"
                           >
-                            <div className="mb-2.5 inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-black/50 px-3.5 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-white/90 backdrop-blur-md">
+                            <div className="mb-2.5 inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-black/55 px-3.5 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-100 backdrop-blur-md">
                               <span>{equipment.category}</span>
                             </div>
 
@@ -273,11 +273,11 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
                               {equipment.name}
                             </h3>
 
-                            <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2 text-sm text-white/80">
+                            <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-200">
                               <span className="font-semibold text-white">
                                 ${equipment.price} / {UNIT[equipment.rentalType]}
                               </span>
-                              <span className="inline-flex items-center gap-1 text-xs text-white/75">
+                              <span className="inline-flex items-center gap-1 text-xs text-slate-300">
                                 <MapPin className="size-3.5" />
                                 {equipment.location}
                               </span>
@@ -285,7 +285,7 @@ export function FeaturedEquipment({ items }: { items: Equipment[] }) {
 
                             <Link
                               href={buildEquipmentUrl(equipment)}
-                              className="mt-4 flex items-center justify-between rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-md transition hover:bg-primary/90"
+                              className="mt-4 flex items-center justify-between rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-md transition hover:bg-slate-100 dark:text-[#0b1220]"
                             >
                               View Details
                               <ArrowRight className="size-4" />

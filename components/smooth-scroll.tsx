@@ -9,7 +9,7 @@ export function SmoothScroll() {
     // Respect users who turned off animations in their system settings
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const lenis = new Lenis({ anchors: true });
+    const lenis = new Lenis({ anchors: true, allowNestedScroll: true });
 
     let frame = 0;
     function raf(time: number) {
