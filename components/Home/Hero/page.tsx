@@ -1,14 +1,23 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 import { SectionTitle } from "@/components/ui/section-title";
+import Image from "next/image";
 
-const IMAGES = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => `/demo/${n}.jpg`);
+const IMAGES = [
+  "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=900&q=80",
+];
 
 // Camera travel in px. Perspective is 900, so END_Z must stay below it.
 const START_Z = -2400;
@@ -179,7 +188,7 @@ export function Hero() {
               ref={(el) => {
                 cardRefs.current[i] = el;
               }}
-              className="absolute left-[65%] top-1/2 overflow-hidden rounded-2xl shadow-2xl ring-1 ring-border will-change-transform"
+              className="absolute left-[65%] top-1/2 overflow-hidden rounded-2xl bg-card shadow-2xl ring-1 ring-border will-change-transform"
               style={{
                 width: card.w,
                 height: card.h,
@@ -189,12 +198,16 @@ export function Hero() {
               }}
             >
               <Image
+                width={900}
+                height={900}
                 src={IMAGES[i % IMAGES.length]}
                 alt=""
-                fill
-                sizes="240px"
-                className="object-cover"
-                priority={i < 3}
+                loading={i < 3 ? "eager" : "lazy"}
+                className="h-full w-full object-cover"
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent"
               />
             </div>
           ))}
@@ -225,7 +238,10 @@ export function Hero() {
                 The small bottom padding keeps descenders from being clipped. */}
             <span className="-mb-[0.12em] block overflow-hidden pb-[0.12em]">
               <motion.span className="block" variants={lineUp}>
-                <SectionTitle className="text-5xl md:text-7xl" text="Everything you need," />
+                <SectionTitle
+                  className="text-5xl md:text-7xl"
+                  text="Everything you need,"
+                />
               </motion.span>
             </span>
             <span className="-mb-[0.12em] block overflow-hidden pb-[0.12em]">
