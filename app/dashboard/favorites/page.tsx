@@ -62,8 +62,7 @@ export default function MyFavoritesPage() {
     async function loadFavorites() {
       try {
         const headers = await getAuthHeaders();
-        const emailParam = encodeURIComponent(session?.user?.email || "");
-        const res = await fetch(`${API_URL}/favorites?email=${emailParam}`, {
+        const res = await fetch(`${API_URL}/favorites`, {
           headers,
           credentials: "include",
         });

@@ -38,6 +38,13 @@ import { buildEquipmentUrl, extractSlugOrId } from "@/lib/slug";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
+async function getAuthHeaders(): Promise<HeadersInit> {
+  const res = await fetch("/api/auth/token", { credentials: "include" });
+  if (!res.ok) return {};
+  const data = await res.json();
+  return data?.token ? { Authorization: `Bearer ${data.token}` } : {};
+}
+
 type EquipmentDetail = {
   _id: string;
   name: string;
@@ -243,13 +250,13 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
     if (!item || !user) return;
     setFavoriting(true);
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch(`${API_BASE}/favorites`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...headers },
         credentials: "include",
         body: JSON.stringify({
           equipmentId: item._id,
-          userEmail: user.email,
         }),
       });
 
@@ -301,11 +308,12 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
 
     setBookingLoading(true);
     try {
+      const headers = await getAuthHeaders();
       const totalPrice = item.price * duration * quantity;
 
       const res = await fetch(`${API_BASE}/payments/create-checkout-session`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...headers },
         credentials: "include",
         body: JSON.stringify({
           equipmentId: item._id,
@@ -320,7 +328,6 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
           deliveryAddress: deliveryAddress.trim(),
           additionalNotes: additionalNotes.trim(),
           totalPrice,
-          customerEmail: user.email,
           customerName: user.name,
         }),
       });
