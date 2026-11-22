@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./docs/banner.svg" alt="Apex Rentals" width="100%" />
+<img src="./public/banner.svg" alt="Apex Rentals" width="100%" />
 
 <br />
 
@@ -66,7 +66,7 @@ flowchart LR
 
 ## Tech stack
 
-<img src="./docs/stack.svg" alt="Tech stack: Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, Framer Motion, Better Auth, MongoDB, Express, Stripe and Vercel" width="100%" />
+<img src="./public/stack.svg" alt="Tech stack: Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, Framer Motion, Better Auth, MongoDB, Express, Stripe and Vercel" width="100%" />
 
 The client uses Next.js 16 with the App Router, React 19 and Tailwind CSS 4. Equipment and profile photos are uploaded to imgbb. The Express API lives in its own [repository](https://github.com/Ayman392/Apex-Rentals-server).
 
@@ -150,7 +150,7 @@ The client is deployed on Vercel. Every variable in the table above has to be se
 
 <div align="center">
 
-<img src="./docs/footer.svg" alt="Apex Rentals" width="100%" />
+<img src="./public/footer.svg" alt="Apex Rentals" width="100%" />
 
 Built by [Ayman](https://github.com/Ayman392)
 
