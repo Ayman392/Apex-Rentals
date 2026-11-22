@@ -66,14 +66,9 @@ flowchart LR
 
 ## Tech stack
 
-| Layer | Used |
-| :-- | :-- |
-| Framework | Next.js 16 (App Router), React 19, TypeScript |
-| Styling | Tailwind CSS 4, shadcn/ui on Base UI, Framer Motion, Lenis |
-| Authentication | Better Auth with the MongoDB adapter, JWT |
-| Data | MongoDB, Express API (separate repository) |
-| Payments and media | Stripe Checkout, imgbb |
-| Hosting | Vercel |
+<img src="./docs/stack.svg" alt="Tech stack: Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, Framer Motion, Better Auth, MongoDB, Express, Stripe and Vercel" width="100%" />
+
+The client uses Next.js 16 with the App Router, React 19 and Tailwind CSS 4. Equipment and profile photos are uploaded to imgbb. The Express API lives in its own [repository](https://github.com/Ayman392/Apex-Rentals-server).
 
 ## npm packages
 
@@ -151,6 +146,12 @@ docs/                   README assets
 
 The client is deployed on Vercel. Every variable in the table above has to be set in the Vercel project settings, and the production URL must be listed as a trusted origin in the Better Auth config in `lib/auth.ts`.
 
-## Author
+---
 
-Built by [Ayman](https://github.com/Ayman392).
+<div align="center">
+
+<img src="./docs/footer.svg" alt="Apex Rentals" width="100%" />
+
+Built by [Ayman](https://github.com/Ayman392)
+
+</div>
