@@ -789,12 +789,13 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
             </div>
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-2">
+          <DialogFooter className="flex-col-reverse gap-2.5 pt-2 sm:flex-row sm:items-center sm:justify-end sm:gap-2.5">
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={() => setBookingOpen(false)}
               disabled={bookingLoading}
+              className="h-11 w-full rounded-full px-5 sm:w-auto"
             >
               Cancel
             </Button>
@@ -805,7 +806,7 @@ function EquipmentDetailsContent({ rawSlug }: { rawSlug: string }) {
               text={bookingLoading ? "Redirecting..." : `Pay $${totalCost}`}
               dotClassName="size-2.5"
               durationClassName="duration-300"
-              className="h-11 w-48"
+              className="h-11 w-full sm:w-48"
             />
           </DialogFooter>
         </DialogContent>

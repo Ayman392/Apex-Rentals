@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { InfiniteSlider } from "@/components/ui/infinite-slider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SectionTitle } from "@/components/ui/section-title";
+import { motion } from "framer-motion";
 
 type Testimonial = {
   quote: string;
@@ -124,22 +125,26 @@ function RatingStars({ rating }: { rating: number }) {
 
 export function CustomerReview() {
   return (
-    <section className="relative py-10">
-      <div className="mx-auto max-w-5xl px-4">
-        <div className="mx-auto flex max-w-sm flex-col items-center justify-center gap-4">
-          <div className="flex justify-center">
-            <div className="glass-chip rounded-lg border px-4 py-1 text-xs font-medium">
-              Customer Reviews
-            </div>
-          </div>
-          <SectionTitle
-            text="What our renters say"
-            className="text-center text-3xl font-bold tracking-tighter lg:text-4xl"
-          />
-          <p className="text-center text-sm text-muted-foreground">
-            See what our customers and owners have to say about us.
+    <section className="relative w-full overflow-hidden">
+      <div className="mx-auto w-full max-w-6xl px-6 py-10 sm:px-10">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col gap-6 border-b border-border pb-8 md:flex-row md:items-end md:justify-between"
+        >
+          <SectionTitle text="What our renters say" />
+          <p className="max-w-xs text-lg font-medium leading-snug tracking-tight md:text-right">
+            <span className="text-foreground">
+              See what our customers and owners
+            </span>{" "}
+            <span className="text-muted-foreground">
+              have to say about us.
+            </span>
           </p>
-        </div>
+        </motion.div>
 
         <div
           className={cn(

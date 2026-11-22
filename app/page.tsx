@@ -5,6 +5,7 @@ import { WhyChooseUs } from "@/components/Home/WhyChooseUs/page";
 import { HowItWorks } from "@/components/Home/How It Works/page";
 import { CustomerReview } from "@/components/Home/CustomerReview/page";
 import type { Equipment } from "@/lib/equipment";
+import TrustedOwners from "@/components/Home/TrustedOwners/page";
 
 async function getFeaturedEquipment(): Promise<Equipment[]> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -43,6 +44,7 @@ export default async function Home() {
       <Categories />
       <WhyChooseUs />
       <HowItWorks />
+      <TrustedOwners/>
       <CustomerReview />
     </>
   );

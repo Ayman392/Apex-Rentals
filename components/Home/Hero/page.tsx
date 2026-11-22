@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
-import { ShieldCheck } from "lucide-react";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 import { SectionTitle } from "@/components/ui/section-title";
 import Image from "next/image";
@@ -222,13 +221,6 @@ export function Hero() {
           initial="hidden"
           animate="show"
         >
-          <motion.span
-            variants={rise}
-            className="glass-chip inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground"
-          >
-            <ShieldCheck className="size-3.5 text-coral-text" />
-            Verified owners, secure payments
-          </motion.span>
 
           <h1
             id="hero-heading"

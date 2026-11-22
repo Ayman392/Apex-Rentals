@@ -104,37 +104,37 @@ export function HowItWorks() {
                   index={index}
                   topPosition={`${96 + index * 20}px`}
                   style={{ zIndex: index + 1 }}
-                  className="h-[420px] sm:h-[440px]"
+                  className="h-[460px] sm:h-[440px]"
                 >
                   <div
                     className={cn(
                       cardClass,
-                      "mx-auto flex h-[84%] w-full flex-col justify-between gap-6 rounded-3xl px-6 py-8 sm:h-[78%] sm:flex-row sm:items-center sm:gap-10 sm:px-12 sm:py-10",
+                      "mx-auto flex h-[88%] w-full flex-col justify-between gap-5 rounded-3xl px-5 py-6 sm:h-[78%] sm:flex-row sm:items-center sm:gap-10 sm:px-12 sm:py-10",
                     )}
                   >
                     {/* Left: Copy & Highlights */}
                     <div className="flex flex-1 flex-col justify-center">
                       <span
                         className={cn(
-                          "mb-3 inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider",
+                          "mb-2.5 inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider",
                           pillClass,
                         )}
                       >
                         {badge}
                       </span>
-                      <h3 className="font-heading mb-3 text-2xl font-bold tracking-tight sm:text-3xl">
+                      <h3 className="font-heading mb-2 text-xl font-bold tracking-tight sm:mb-3 sm:text-3xl">
                         {title}
                       </h3>
                       <p className="max-w-xl text-sm leading-relaxed opacity-85 sm:text-base">
                         {description}
                       </p>
 
-                      <div className="mt-5 flex flex-wrap gap-2">
+                      <div className="mt-4 flex flex-wrap gap-2">
                         {highlights.map((tag) => (
                           <span
                             key={tag}
                             className={cn(
-                              "rounded-full px-3 py-1 text-xs font-medium",
+                              "inline-flex items-center rounded-full px-3.5 py-1.5 text-xs font-medium leading-none",
                               pillClass,
                             )}
                           >
@@ -147,11 +147,11 @@ export function HowItWorks() {
                     {/* Right: Minimal Icon Visual */}
                     <div
                       className={cn(
-                        "flex size-20 shrink-0 items-center justify-center rounded-3xl sm:size-28",
+                        "flex size-14 shrink-0 items-center justify-center rounded-2xl sm:size-28 sm:rounded-3xl",
                         iconBoxClass,
                       )}
                     >
-                      <Icon className="size-9 sm:size-12" strokeWidth={1.75} />
+                      <Icon className="size-7 sm:size-12" strokeWidth={1.75} />
                     </div>
                   </div>
                 </StackingCardItem>

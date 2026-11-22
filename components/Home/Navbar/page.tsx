@@ -50,7 +50,7 @@ function Brand() {
         width={36}
         height={36}
         priority
-        className="size-9 rounded-[0.65rem] ring-1 ring-border shadow-lg shadow-black/20"
+        className="size-9 rounded-[0.65rem] shadow-lg shadow-black/20 ring-1 ring-border"
       />
       <span className="font-heading text-lg font-semibold tracking-tight text-foreground">
         Apex Rentals
@@ -330,7 +330,7 @@ export function Navbar() {
                             type="button"
                             disabled={loggingOut}
                             onClick={handleLogout}
-                            className="mt-1 flex w-full items-center gap-2.5 rounded-lg border-t border-border px-2.5 pt-2.5 pb-2 text-left text-sm text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground disabled:opacity-50"
+                            className="mt-1 flex w-full items-center gap-2.5 rounded-lg border-t border-border px-2.5 pb-2 pt-2.5 text-left text-sm text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground disabled:opacity-50"
                           >
                             <LogOut className="size-4" />
                             {loggingOut ? "Logging out..." : "Logout"}
@@ -459,7 +459,10 @@ export function Navbar() {
                       <Link
                         href="/dashboard"
                         onClick={closeMobile}
-                        className={buttonVariants({ variant: "ghost" })}
+                        className={cn(
+                          buttonVariants({ variant: "default" }),
+                          "gap-2",
+                        )}
                       >
                         <LayoutDashboard className="size-4" />
                         Dashboard
@@ -467,7 +470,10 @@ export function Navbar() {
                       <button
                         type="button"
                         disabled={loggingOut}
-                        className={buttonVariants({ variant: "outline" })}
+                        className={cn(
+                          buttonVariants({ variant: "outline" }),
+                          "gap-2",
+                        )}
                         onClick={handleLogout}
                       >
                         <LogOut className="size-4" />

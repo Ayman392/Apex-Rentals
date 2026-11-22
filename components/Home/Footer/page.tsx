@@ -212,7 +212,7 @@ export function Footer() {
               type="button"
               onClick={handleBackToTop}
               aria-label="Back to top"
-              className="group inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-border bg-background/60 px-3.5 py-1.5 text-xs font-medium text-foreground transition hover:border-primary/60 hover:bg-primary hover:text-primary-foreground"
+              className="group inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-border bg-background/60 px-3.5 py-1.5 text-xs font-medium text-foreground transition hover:border-primary/60  hover:bg-primary hover:text-primary-foreground"
             >
               <span>Back to top</span>
               <ArrowUp className="size-3.5 transition-transform duration-300 group-hover:-translate-y-0.5" />
