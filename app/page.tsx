@@ -8,6 +8,8 @@ import { CustomerReview } from "@/components/Home/CustomerReview/page";
 import TrustedOwners from "@/components/Home/TrustedOwners/page";
 import type { Equipment } from "@/lib/equipment";
 
+export const revalidate = 60;
+
 async function getFeaturedEquipment(): Promise<Equipment[]> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   if (!apiUrl) return [];
