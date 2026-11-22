@@ -1,0 +1,35 @@
+<svg width="900" height="180" viewBox="0 0 900 180" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="50%" stop-color="#1E1B4B" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F43F5E">
+        <animate attributeName="stop-color" values="#F43F5E;#FB923C;#38BDF8;#F43F5E" dur="6s" repeatCount="indefinite" />
+      </stop>
+      <stop offset="100%" stop-color="#FB923C">
+        <animate attributeName="stop-color" values="#FB923C;#38BDF8;#F43F5E;#FB923C" dur="6s" repeatCount="indefinite" />
+      </stop>
+    </linearGradient>
+  </defs>
+
+  <rect width="900" height="180" rx="16" fill="url(#bg)" />
+  <circle cx="90" cy="90" r="28" stroke="url(#accent)" stroke-width="2" stroke-dasharray="10 6" fill="none">
+    <animateTransform attributeName="transform" type="rotate" from="0 90 90" to="360 90 90" dur="10s" repeatCount="indefinite" />
+  </circle>
+  <circle cx="90" cy="90" r="7" fill="url(#accent)" />
+
+  <text x="145" y="80" fill="#FFFFFF" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif" font-size="38" font-weight="800" letter-spacing="-0.8">
+    Apex Rentals
+  </text>
+  <text x="147" y="110" fill="#CBD5E1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, Helvetica, sans-serif" font-size="16" font-weight="500">
+    Equipment Rental Marketplace · Next.js 16, Express, MongoDB &amp; Stripe
+  </text>
+
+  <rect x="147" y="132" width="680" height="3" rx="1.5" fill="#334155" />
+  <rect x="147" y="132" width="180" height="3" rx="1.5" fill="url(#accent)">
+    <animate attributeName="x" values="147;647;147" dur="5s" repeatCount="indefinite" />
+  </rect>
+</svg>
