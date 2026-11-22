@@ -1,118 +1,156 @@
 <div align="center">
 
-![Apex Rentals](./public/readme-banner.svg)
+<img src="./docs/banner.svg" alt="Apex Rentals" width="100%" />
 
-`Next.js 16` • `TypeScript` • `Tailwind CSS` • `Framer Motion` • `Better Auth` • `MongoDB` • `Stripe`
+<br />
+
+**[Live site](https://apex-rentals-psi.vercel.app)** &nbsp;·&nbsp; **[Server repository](https://github.com/Ayman392/Apex-Rentals-server)**
 
 </div>
 
----
+## Overview
 
-## About
+Apex Rentals is an equipment rental marketplace. Owners list equipment, customers book it for a date range and pay through Stripe, and admins approve listings and watch how the platform is doing. Listings fall into six categories: construction, photography, vehicles, agriculture, electronics and event equipment.
 
-**Apex Rentals** connects renters with verified equipment owners across Bangladesh. Anyone can browse available listings by category and rental term, customers can book equipment and pay online through Stripe, owners can list and track their fleet, and admins can manage platform-wide listings, rentals, and users.
+This repository is the Next.js client. It talks to a separate Express API, [Apex-Rentals-server](https://github.com/Ayman392/Apex-Rentals-server), which owns the equipment, rental and payment data in MongoDB and checks user roles on every protected request.
 
-This repository contains the **client** (frontend) of the project.
+- **Live URL:** https://apex-rentals-psi.vercel.app
+- **Client repository:** https://github.com/Ayman392/Apex-Rentals
+- **Server repository:** https://github.com/Ayman392/Apex-Rentals-server
 
 ## Features
 
-- 🔍 **Equipment Catalog:** browse all approved equipment with category filters, search, and availability badges, and open canonical slug-based detail pages (`/equipment/[id]`)
-- 💳 **Booking & Stripe Checkout:** select start and end dates, rental duration (`Daily`, `Weekly`, `Monthly`), and unit quantities with real-time total calculation, then pay via Stripe Checkout (`/payment/success`)
-- ❤️ **Favorites & Customer Rentals:** customer accounts can save listings to their favorites list and track active or past bookings on My Rentals
-- 🛠️ **Owner Fleet Management:** owners can publish new equipment with imgbb image uploads, update or remove their listings, and monitor incoming rentals on Owner Rentals
-- 🛡️ **Admin Moderation & Analytics:** admins can approve or manage all equipment, oversee all platform rentals, manage user roles, and inspect revenue and rental charts
-- 🔐 **Secure Authentication:** email/password and Google OAuth sign in and sign up powered by Better Auth with role-based dashboard routes
+**Everyone**
 
-### Equipment Categories
+- A home page with a hero, featured equipment, categories, how it works, why choose us and customer reviews
+- An equipment listing with search by name or location, filters for category, rental type, price range and availability, sorting, and pagination. All of it runs on the server, not in the browser
+- Light and dark themes, remembered between visits
 
-`Construction Equipment` · `Photography Equipment` · `Vehicles & Transportation` · `Agriculture Equipment` · `Electronics` · `Event Equipment`
+**Customers**
 
-## Tech Stack
+- Equipment details with owner information, rental terms and remaining stock
+- Favorites, saved in the database
+- Booking with a start date, end date and quantity, an automatic total, and payment through Stripe Checkout
+- A My Rentals table with payment and booking status, and an editable profile
 
-<div>
+**Owners**
 
-![Tech Stack](./public/readme-stack.svg)
+- Add equipment with a photo upload to imgbb. New listings start as pending until an admin approves them
+- Edit or delete your own listings
+- See the rentals booked on your equipment, with charts for rentals and earnings
 
-</div>
+**Admins**
 
-| Layer | Technologies |
-| :--- | :--- |
-| **Framework** | Next.js 16 (App Router) & TypeScript |
-| **Styling & UI** | Tailwind CSS, shadcn/ui, Framer Motion, Lucide React |
-| **Authentication** | Better Auth |
-| **Backend & Database** | Express.js & MongoDB |
-| **Payments & Media** | Stripe Checkout & imgbb |
-| **Alerts & Charts** | Sonner & Recharts |
-| **Deployment** | Vercel |
+- Approve, reject, edit or delete any listing
+- Change a user's role between customer, owner and admin
+- Review every rental on the platform
+- Platform charts for users, equipment, bookings and revenue
 
-## Getting Started
+**Accounts and access**
 
-**1. Clone the repository**
+- Email and password sign-up (at least 6 characters with an uppercase and a lowercase letter), plus Google and GitHub sign-in
+- New accounts start as customers. Dashboard routes are limited by role
+- Sessions are handled by Better Auth, and the API verifies the signed token it issues before serving protected data
 
-```bash
-git clone [https://github.com/Ayman392/apex-rentals.git](https://github.com/Ayman392/apex-rentals.git)
-cd apex-rentals
+## How it fits together
+
+```mermaid
+flowchart LR
+  B[Browser] --> C[Next.js client<br/>Better Auth]
+  C -->|signed JWT| S[Express API]
+  S --> M[(MongoDB)]
+  C --> M
+  S --> P[Stripe]
+  C --> I[imgbb]
 ```
 
-**2. Install dependencies**
+## Tech stack
+
+| Layer | Used |
+| :-- | :-- |
+| Framework | Next.js 16 (App Router), React 19, TypeScript |
+| Styling | Tailwind CSS 4, shadcn/ui on Base UI, Framer Motion, Lenis |
+| Authentication | Better Auth with the MongoDB adapter, JWT |
+| Data | MongoDB, Express API (separate repository) |
+| Payments and media | Stripe Checkout, imgbb |
+| Hosting | Vercel |
+
+## npm packages
+
+| Purpose | Packages |
+| :-- | :-- |
+| Framework | `next`, `react`, `react-dom` |
+| Authentication and data | `better-auth`, `mongodb` |
+| Payments | `stripe` |
+| UI components | `shadcn`, `@base-ui/react`, `class-variance-authority`, `clsx`, `tailwind-merge`, `cmdk`, `embla-carousel-react`, `input-otp`, `react-day-picker`, `react-resizable-panels`, `shiki` |
+| Icons, toasts, themes | `lucide-react`, `sonner`, `next-themes` |
+| Animation and scrolling | `framer-motion`, `lenis`, `react-use-measure`, `tw-animate-css` |
+| Charts and dates | `recharts`, `date-fns` |
+| Build tooling (dev) | `typescript`, `tailwindcss`, `@tailwindcss/postcss`, `eslint`, `eslint-config-next`, `@types/node`, `@types/react`, `@types/react-dom` |
+
+## Getting started
+
+You need Node.js 20 or newer, a MongoDB database, and the [server](https://github.com/Ayman392/Apex-Rentals-server) running locally.
 
 ```bash
+git clone https://github.com/Ayman392/Apex-Rentals.git
+cd Apex-Rentals
 npm install
 ```
 
-**3. Set up environment variables**
+Copy `.env.example` to `.env.local` and fill in your own values:
 
-Create a `.env.local` file in the project root (or copy `.env.example`) and add your own values:
+| Variable | What it is for |
+| :-- | :-- |
+| `NEXT_PUBLIC_API_URL` | Base URL of the Express API, for example `http://localhost:5000` |
+| `NEXT_PUBLIC_APP_URL` | Public URL of this app |
+| `BETTER_AUTH_URL` | Base URL Better Auth uses, usually the same as the app URL |
+| `BETTER_AUTH_SECRET` | Long random string used by Better Auth |
+| `MONGODB_URI` | MongoDB connection string |
+| `MONGODB_DB_NAME` | Database name |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google OAuth credentials |
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | GitHub OAuth credentials |
+| `NEXT_PUBLIC_IMGBB_API_KEY` | imgbb key for equipment and profile photos |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key |
 
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000
-BETTER_AUTH_SECRET=your_secret
-BETTER_AUTH_URL=http://localhost:3000
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-MONGODB_URI=your_mongodb_connection_string
-MONGODB_DB_NAME=apex_rentals
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-NEXT_PUBLIC_IMGBB_API_KEY=your_imgbb_api_key
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
-```
-
-**4. Run the development server**
+Then start the development server:
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Project Structure
-
-```text
-├── app/             # Next.js routes, API auth handler, equipment & role dashboards
-├── components/      # Reusable UI primitives, Home sections, Navbar & Footer
-├── hooks/           # Custom React hooks
-├── lib/             # API helpers, Better Auth setup, imgbb, slug & constants
-├── public/          # Static assets, logo & README SVGs
-├── components.json  # shadcn/ui configuration
-├── next.config.ts
-└── package.json
-```
+Open http://localhost:3000. Secrets stay in `.env.local`, which is ignored by git.
 
 ## Scripts
 
-| Command | Description |
-| :--- | :--- |
+| Command | What it does |
+| :-- | :-- |
 | `npm run dev` | Start the development server |
 | `npm run build` | Create a production build |
-| `npm run start` | Run the production build |
-| `npm run lint` | Check the code with ESLint |
+| `npm run start` | Serve the production build |
+| `npm run lint` | Run ESLint |
+
+## Project structure
+
+```text
+app/
+  equipment/            listing and [id] details pages
+  login/  register/     authentication pages
+  payment/success/      Stripe return page
+  dashboard/            customer, owner and admin pages
+components/
+  Home/                 home page sections
+  Shared/               motion helpers, section heading, X logo
+  ui/                   shadcn components
+hooks/                  custom React hooks
+lib/                    API helpers, Better Auth setup, constants
+docs/                   README assets
+```
+
+## Deployment
+
+The client is deployed on Vercel. Every variable in the table above has to be set in the Vercel project settings, and the production URL must be listed as a trusted origin in the Better Auth config in `lib/auth.ts`.
 
 ## Author
 
-<div align="center">
-
-**Made by [Ayman](https://github.com/Ayman392)**
-
-![Footer](./public/readme-footer.svg)
-
-</div>
+Built by [Ayman](https://github.com/Ayman392).

@@ -42,8 +42,8 @@ const SORTS = [
   { value: "price-desc", label: "Price: High to Low" },
 ] as const;
 
-const PRICE_MIN = 0;
-const PRICE_MAX = 20000;
+const PRICE_MIN = 2;
+const PRICE_MAX = 600;
 
 type EquipmentItem = {
   _id: string;
